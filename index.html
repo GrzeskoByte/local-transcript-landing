@@ -58,7 +58,7 @@
 <section class="hero">
   <div class="hero-grid" aria-hidden="true"></div>
   <div class="wrap">
-    <a class="eyebrow fade-up" href="#download" style="animation-delay:.05s"><b id="heroVer">v0.1.1</b> Free &amp; open source · macOS · Windows · Linux</a>
+    <a class="eyebrow fade-up" href="#download" style="animation-delay:.05s"><b id="heroVer">Latest</b> Free &amp; open source · macOS · Windows · Linux</a>
     <h1 class="display reveal-words" id="heroTitle">Every meeting. Every word. <span class="br"><span class="grad-text">Never leaves your machine.</span></span></h1>
     <p class="lede fade-up" style="animation-delay:.7s">Local Transcriber records your calls, transcribes them with <b>whisper.cpp</b> or <b>Parakeet</b> on your own GPU, and turns them into summaries your team can use. No account. No cloud. No uploads.</p>
     <div class="hero-ctas fade-up" style="animation-delay:.85s">
@@ -239,7 +239,7 @@
         </div>
         <span class="idx">03 — SHARE</span>
         <h3>Summarize &amp; ship</h3>
-        <p>A local LLM writes the summary and key points. Push it to a GitLab wiki, book the follow-up in your calendar, or export TXT, Markdown and JSON.</p>
+        <p>A local LLM writes the summary and key points. Push it to a GitLab wiki, draft follow-up events for your calendar, or export TXT, Markdown and JSON.</p>
       </article>
     </div>
   </div>
@@ -307,7 +307,7 @@
       <article class="tile w3 rv" style="transition-delay:.08s">
         <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
         <h3>Your company calendar</h3>
-        <p>CalDAV, Microsoft Graph and Exchange EWS. See recordings next to real events and create follow-ups straight from a summary.</p>
+        <p>CalDAV — SOGo, Nextcloud, Zimbra, Kerio and more — plus Microsoft Graph and Exchange EWS. Settings can find your server for you. Follow-ups start as drafts you edit; nothing reaches the server until you click <b>Approve</b>.</p>
         <div class="viz mini-cal" id="miniCal" aria-hidden="true"></div>
       </article>
       <article class="tile w3 rv">
@@ -321,6 +321,21 @@
         <h3>Open formats, real files</h3>
         <p>Every finished meeting is mirrored to <code class="mono" style="color:#c7d2fe">~/Documents/Local Transcribe</code>. Export anywhere, anytime.</p>
         <div class="viz exports"><span>transcript.txt</span><span>transcript.md</span><span>transcript.json</span><span>me.webm</span><span>others.webm</span><span>meeting.json</span></div>
+      </article>
+      <article class="tile w6 split rv">
+        <div>
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></div>
+          <h3>Install once, stay up to date</h3>
+          <p>The app checks GitHub for a new version on launch (you can turn that off). One click on <b>Update &amp; restart</b> downloads it, verifies its signature and installs it — never without your click, and never mid-recording.</p>
+        </div>
+        <div class="viz upd" aria-hidden="true">
+          <div class="upd-card">
+            <div class="upd-h"><span class="upd-dot"></span>Update available</div>
+            <div class="upd-v"><span class="mono">v<span class="upd-cur">0.1.1</span></span><svg width="14" height="14"><use href="#i-chev"/></svg><span class="mono upd-new">v<span id="updNew">0.1.2</span></span></div>
+            <div class="upd-bar"><i></i></div>
+            <div class="upd-foot"><span class="upd-ok"><svg width="13" height="13"><use href="#i-check"/></svg>Signature verified</span><span class="upd-btn">Update &amp; restart</span></div>
+          </div>
+        </div>
       </article>
     </div>
   </div>
@@ -344,6 +359,7 @@
         <div class="ledger-row"><div><strong>Your audio</strong><small>Recorded, stored and transcribed locally.</small></div><span class="status never">NEVER LEAVES</span></div>
         <div class="ledger-row"><div><strong>Transcripts &amp; summaries</strong><small>Local by default — with Ollama, even the AI runs on-device.</small></div><span class="status never">STAYS LOCAL</span></div>
         <div class="ledger-row"><div><strong>Analytics &amp; telemetry</strong><small>None. Not anonymous, not opt-out. None.</small></div><span class="status never">NONE</span></div>
+        <div class="ledger-row"><div><strong>Update check</strong><small>On launch, asks GitHub if a newer version exists. Sends nothing about you. Off with one switch.</small></div><span class="status optin">YOUR CHOICE</span></div>
         <div class="ledger-row"><div><strong>GitLab, calendar, remote LLM</strong><small>Only if you turn them on, only to endpoints you configure.</small></div><span class="status optin">YOUR CHOICE</span></div>
       </div>
       <div class="privacy-points rv"><span><b>0</b>accounts</span><span><b>0</b>servers of ours</span><span><b>0</b>bytes of audio uploaded</span></div>
@@ -362,7 +378,7 @@
 
     <div class="dl rv">
       <div class="dl-top">
-        <div class="rel-chip"><span class="dot" id="relDot"></span><span class="v" id="relVer">v0.1.1</span><span id="relDate">Latest release</span></div>
+        <div class="rel-chip"><span class="dot" id="relDot"></span><span class="v" id="relVer">Latest</span><span id="relDate">Checking GitHub…</span></div>
         <div class="os-tabs" role="tablist" aria-label="Platform" id="osTabs">
           <button class="os-tab" role="tab" data-os="mac" id="tab-mac" aria-controls="dlPanel"><svg width="16" height="16"><use href="#i-apple"/></svg>macOS</button>
           <button class="os-tab" role="tab" data-os="win" id="tab-win" aria-controls="dlPanel"><svg width="15" height="15"><use href="#i-windows"/></svg>Windows</button>
@@ -377,7 +393,7 @@
       <p class="dl-note" id="dlNote" hidden></p>
 
       <div class="backend">
-        <div class="backend-card"><h4><svg><use href="#i-wave"/></svg>Nothing else to install</h4><p>Download, open, record. No account, no setup wizard, no command line.</p></div>
+        <div class="backend-card"><h4><svg><use href="#i-wave"/></svg>Install once</h4><p>No account, no setup wizard. After this, new versions install from inside the app in one click.</p></div>
         <div class="backend-card"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="5" width="14" height="14" rx="2"/><path d="M9 1v4M15 1v4M9 19v4M15 19v4M1 9h4M1 15h4M19 9h4M19 15h4"/></svg>Transcription built in</h4><p id="backendHint">whisper.cpp ships inside the app. The speech model downloads once, on your first transcription.</p></div>
         <div class="backend-card"><h4><svg><use href="#i-check"/></svg>Verify your download</h4><p>Every binary lists its SHA-256. Compare with <code class="mono" id="shaCmd">shasum -a 256 &lt;file&gt;</code>.</p></div>
       </div>
@@ -386,7 +402,7 @@
     <!-- all binaries, all versions -->
     <div class="matrix-wrap rv">
       <div class="matrix-head">
-        <div><h3>All binaries &amp; versions</h3><p>Every build for every platform, straight from GitHub Releases.</p></div>
+        <div><h3>All binaries &amp; versions</h3><p>Every build for every platform, read live from GitHub Releases — the newest is always on top.</p></div>
         <div class="filter" id="platFilter" role="group" aria-label="Filter by platform">
           <button data-f="all" aria-pressed="true">All</button>
           <button data-f="mac" aria-pressed="false">macOS</button>
@@ -425,7 +441,9 @@
     <div class="faq rv">
       <details><summary>Does my audio ever get uploaded?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>No. Recording, storage and transcription all happen on your computer. The only features that send anything over the network are ones you switch on yourself — GitLab sharing, calendar sync or a remote LLM — and they send text, never audio.</p></details>
       <details><summary>Do I need to install anything else?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>No. The transcription engine (whisper.cpp) ships inside the app. The first time you click <b>Transcribe</b>, it downloads its speech model once (about 550 MB) with a progress bar — after that everything works offline. Power users can plug in their own GPU engine (voxtype or a whisper.cpp build) and the app will use it automatically.</p></details>
-      <details><summary>Do I need an internet connection?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>Only to download the app and the speech model once. After that, recording, transcription and local summaries work fully offline.</p></details>
+      <details><summary>Do I need an internet connection?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>Only to download the app and the speech model once. After that, recording, transcription and local summaries work fully offline. The calendar keeps each month on your device too, so it opens instantly and still shows your events offline.</p></details>
+      <details><summary>How do I update?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>You don't have to come back here. When a new version is out, a notice appears in the sidebar — click <b>Update &amp; restart</b>. The download is signature-checked before it installs, and updating is paused while you're recording or transcribing. You can also check by hand or turn off the launch check in <b>Settings → App → Updates</b>. On Linux the AppImage updates itself; <code>.deb</code> and <code>.rpm</code> installs get a Download button instead. Versions before 0.1.2 need one manual install to get the updater.</p></details>
+      <details><summary>Which calendars work?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>Anything that speaks CalDAV — SOGo, Nextcloud, Zimbra, Kerio and others — plus Microsoft 365 (Graph) and on-prem Exchange (EWS). Your mail settings (IMAP/SMTP) don't carry calendars, so Settings offers shortcuts: <b>Detect from server</b> tries the usual addresses and lists your calendars, <b>Find in Thunderbird</b> reuses the calendars Thunderbird already knows (without passwords), and <b>Use SOGo address</b> fills it in from your host and username. A meeting can have several follow-up events, and each one is a draft until you approve it.</p></details>
       <details><summary>Which speech model should I use?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>Start with <code>large-v3-turbo</code> — it's the default and a great balance of speed and accuracy. For the best accuracy, <code>parakeet-tdt-0.6b-v3</code> sits at the top of the S-tier; on Linux it needs voxtype's ONNX variant. Settings ranks every model so the choice is obvious.</p></details>
       <details><summary>Can it record Zoom, Meet or Teams calls?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>Yes — choose <b>Mic + Device</b> and share the call's tab or window when asked. Your voice and the call are saved as separate tracks. Device-audio availability depends on your OS, and headphones are recommended so the mic doesn't pick up the speakers.</p></details>
       <details><summary>What happens if transcription fails?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>Nothing bad. The recording is the source of truth and is never modified by transcription. You'll see "Your original recording is still safe." and a Retry button.</p></details>
@@ -463,37 +481,6 @@
 </footer>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<!--
-  Release manifest — the fallback when the GitHub API is unreachable or has no releases yet.
-  Mirrors .github/workflows/release.yml in the app repo: one GitHub release per platform
-  (v<ver>-windows, v<ver>-macos, v<ver>-ubuntu), files named LocalTranscriber_<ver>_<os>_<arch>.<ext>.
-  Set "published": true once those releases exist; add older versions to the array.
--->
-<script type="application/json" id="manifest">
-{
-  "repo": "GrzeskoByte/local-transcript",
-  "releases": [
-    {
-      "version": "0.1.1",
-      "date": null,
-      "published": false,
-      "assets": [
-        "LocalTranscriber_0.1.1_windows_x64-setup.exe",
-        "LocalTranscriber_0.1.1_windows_x64.msi",
-        "LocalTranscriber_0.1.1_windows_arm64-setup.exe",
-        "LocalTranscriber_0.1.1_macos_arm64.dmg",
-        "LocalTranscriber_0.1.1_macos_x64.dmg",
-        "LocalTranscriber_0.1.1_linux_amd64.deb",
-        "LocalTranscriber_0.1.1_linux_amd64.AppImage",
-        "LocalTranscriber_0.1.1_linux_amd64.rpm",
-        "LocalTranscriber_0.1.1_linux_arm64.deb",
-        "LocalTranscriber_0.1.1_linux_arm64.AppImage",
-        "LocalTranscriber_0.1.1_linux_arm64.rpm"
-      ]
-    }
-  ]
-}
-</script>
 <script src="app.js" defer></script>
 </body>
 </html>
