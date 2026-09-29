@@ -21,12 +21,17 @@ published as one release per platform by the app's `release.yml` workflow:
 | `v<ver>-macos` | `LocalTranscriber_<ver>_macos_{arm64,x64}.dmg` |
 | `v<ver>-ubuntu` | `LocalTranscriber_<ver>_linux_{amd64,arm64}.{deb,AppImage,rpm}` |
 
-The page merges them back into one entry per version, recommends the right file
-for the visitor's OS/arch, and shows sizes and SHA-256 digests. Draft releases are
-not visible to the API, so the page shows "in preparation" until they are published.
+The page merges them back into one entry per version and always shows the newest
+one: the version number, hero button and file list all come from the API on every
+visit, so publishing a release updates the site with no change here. Other tags
+(the app's `updater` release that holds `latest.json`) and non-installer files
+(`.sig`, `SHA256SUMS.txt`) are ignored. While a new version is still building for
+some platforms, each platform falls back to its newest release that has files.
+Draft releases are not visible to the API, so they don't show up until published.
 
-If the API is unreachable it falls back to the inline `<script id="manifest">` in
-`index.html` (same file names). Set `"published": true` there once a version is live.
+The last good list is cached in the visitor's `localStorage` and shown if GitHub
+is unreachable or rate-limited (60 unauthenticated requests/hour per IP); with no
+cache, the buttons link to GitHub Releases instead.
 
 ## Deploy
 
