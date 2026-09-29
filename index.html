@@ -58,7 +58,7 @@
 <section class="hero">
   <div class="hero-grid" aria-hidden="true"></div>
   <div class="wrap">
-    <a class="eyebrow fade-up" href="#download" style="animation-delay:.05s"><b id="heroVer">v0.1.0</b> Free &amp; open source · macOS · Windows · Linux</a>
+    <a class="eyebrow fade-up" href="#download" style="animation-delay:.05s"><b id="heroVer">v0.1.1</b> Free &amp; open source · macOS · Windows · Linux</a>
     <h1 class="display reveal-words" id="heroTitle">Every meeting. Every word. <span class="br"><span class="grad-text">Never leaves your machine.</span></span></h1>
     <p class="lede fade-up" style="animation-delay:.7s">Local Transcriber records your calls, transcribes them with <b>whisper.cpp</b> or <b>Parakeet</b> on your own GPU, and turns them into summaries your team can use. No account. No cloud. No uploads.</p>
     <div class="hero-ctas fade-up" style="animation-delay:.85s">
@@ -357,12 +357,12 @@
     <div class="section-head rv">
       <span class="kicker">Download</span>
       <h2 class="title">Get Local Transcriber <span class="grad-text">for your platform.</span></h2>
-      <p>Native installers for macOS, Windows and Linux. Free, MIT-licensed, no sign-up.</p>
+      <p>Click download, open it, record. Transcription is built in — free, MIT-licensed, no sign-up.</p>
     </div>
 
     <div class="dl rv">
       <div class="dl-top">
-        <div class="rel-chip"><span class="dot" id="relDot"></span><span class="v" id="relVer">v0.1.0</span><span id="relDate">Latest release</span></div>
+        <div class="rel-chip"><span class="dot" id="relDot"></span><span class="v" id="relVer">v0.1.1</span><span id="relDate">Latest release</span></div>
         <div class="os-tabs" role="tablist" aria-label="Platform" id="osTabs">
           <button class="os-tab" role="tab" data-os="mac" id="tab-mac" aria-controls="dlPanel"><svg width="16" height="16"><use href="#i-apple"/></svg>macOS</button>
           <button class="os-tab" role="tab" data-os="win" id="tab-win" aria-controls="dlPanel"><svg width="15" height="15"><use href="#i-windows"/></svg>Windows</button>
@@ -377,8 +377,8 @@
       <p class="dl-note" id="dlNote" hidden></p>
 
       <div class="backend">
-        <div class="backend-card"><h4><svg><use href="#i-wave"/></svg>Recording works out of the box</h4><p>No model, no GPU, no setup. Transcription is an optional add-on you can install any time.</p></div>
-        <div class="backend-card"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="5" width="14" height="14" rx="2"/><path d="M9 1v4M15 1v4M9 19v4M15 19v4M1 9h4M1 15h4M19 9h4M19 15h4"/></svg>Add a speech engine</h4><p id="backendHint">Install whisper.cpp (<code class="mono">whisper-cli</code>) or voxtype — the app detects it automatically.</p></div>
+        <div class="backend-card"><h4><svg><use href="#i-wave"/></svg>Nothing else to install</h4><p>Download, open, record. No account, no setup wizard, no command line.</p></div>
+        <div class="backend-card"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="5" width="14" height="14" rx="2"/><path d="M9 1v4M15 1v4M9 19v4M15 19v4M1 9h4M1 15h4M19 9h4M19 15h4"/></svg>Transcription built in</h4><p id="backendHint">whisper.cpp ships inside the app. The speech model downloads once, on your first transcription.</p></div>
         <div class="backend-card"><h4><svg><use href="#i-check"/></svg>Verify your download</h4><p>Every binary lists its SHA-256. Compare with <code class="mono" id="shaCmd">shasum -a 256 &lt;file&gt;</code>.</p></div>
       </div>
     </div>
@@ -407,12 +407,11 @@
 <span class="p">$ </span>npm install --ignore-scripts
 <span class="p">$ </span>npm run tauri:build
 <span class="c"># installers → src-tauri/target/release/bundle/</span></pre></div>
-        <div class="terminal"><div class="bar"><i></i><i></i><i></i><span>speech-engine.sh</span></div>
-<pre><span class="c"># macOS (Metal)</span>
-<span class="p">$ </span>brew install whisper-cpp
-<span class="c"># Linux — voxtype (Arch: voxtype-bin), GPU optional</span>
+        <div class="terminal"><div class="bar"><i></i><i></i><i></i><span>gpu-engine.sh (optional)</span></div>
+<pre><span class="c"># Optional: bring your own GPU engine (used automatically)</span>
+<span class="c"># Linux — voxtype with Vulkan/CUDA</span>
 <span class="p">$ </span>sudo voxtype setup gpu --enable
-<span class="c"># Windows — whisper.cpp release, then point the app at it</span>
+<span class="c"># Windows — a CUDA/Vulkan whisper.cpp build</span>
 <span class="p">&gt; </span>setx WHISPER_CLI_PATH C:\whisper\whisper-cli.exe</pre></div>
       </div>
     </div>
@@ -425,7 +424,8 @@
     <div class="section-head rv"><span class="kicker">FAQ</span><h2 class="title">Questions, answered.</h2></div>
     <div class="faq rv">
       <details><summary>Does my audio ever get uploaded?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>No. Recording, storage and transcription all happen on your computer. The only features that send anything over the network are ones you switch on yourself — GitLab sharing, calendar sync or a remote LLM — and they send text, never audio.</p></details>
-      <details><summary>Do I need an internet connection?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>Only to download the app and a speech model once. After that, recording, transcription and local summaries work fully offline.</p></details>
+      <details><summary>Do I need to install anything else?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>No. The transcription engine (whisper.cpp) ships inside the app. The first time you click <b>Transcribe</b>, it downloads its speech model once (about 550 MB) with a progress bar — after that everything works offline. Power users can plug in their own GPU engine (voxtype or a whisper.cpp build) and the app will use it automatically.</p></details>
+      <details><summary>Do I need an internet connection?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>Only to download the app and the speech model once. After that, recording, transcription and local summaries work fully offline.</p></details>
       <details><summary>Which speech model should I use?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>Start with <code>large-v3-turbo</code> — it's the default and a great balance of speed and accuracy. For the best accuracy, <code>parakeet-tdt-0.6b-v3</code> sits at the top of the S-tier; on Linux it needs voxtype's ONNX variant. Settings ranks every model so the choice is obvious.</p></details>
       <details><summary>Can it record Zoom, Meet or Teams calls?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>Yes — choose <b>Mic + Device</b> and share the call's tab or window when asked. Your voice and the call are saved as separate tracks. Device-audio availability depends on your OS, and headphones are recommended so the mic doesn't pick up the speakers.</p></details>
       <details><summary>What happens if transcription fails?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>Nothing bad. The recording is the source of truth and is never modified by transcription. You'll see "Your original recording is still safe." and a Retry button.</p></details>
@@ -474,21 +474,21 @@
   "repo": "GrzeskoByte/local-transcript",
   "releases": [
     {
-      "version": "0.1.0",
+      "version": "0.1.1",
       "date": null,
       "published": false,
       "assets": [
-        "LocalTranscriber_0.1.0_windows_x64-setup.exe",
-        "LocalTranscriber_0.1.0_windows_x64.msi",
-        "LocalTranscriber_0.1.0_windows_arm64-setup.exe",
-        "LocalTranscriber_0.1.0_macos_arm64.dmg",
-        "LocalTranscriber_0.1.0_macos_x64.dmg",
-        "LocalTranscriber_0.1.0_linux_amd64.deb",
-        "LocalTranscriber_0.1.0_linux_amd64.AppImage",
-        "LocalTranscriber_0.1.0_linux_amd64.rpm",
-        "LocalTranscriber_0.1.0_linux_arm64.deb",
-        "LocalTranscriber_0.1.0_linux_arm64.AppImage",
-        "LocalTranscriber_0.1.0_linux_arm64.rpm"
+        "LocalTranscriber_0.1.1_windows_x64-setup.exe",
+        "LocalTranscriber_0.1.1_windows_x64.msi",
+        "LocalTranscriber_0.1.1_windows_arm64-setup.exe",
+        "LocalTranscriber_0.1.1_macos_arm64.dmg",
+        "LocalTranscriber_0.1.1_macos_x64.dmg",
+        "LocalTranscriber_0.1.1_linux_amd64.deb",
+        "LocalTranscriber_0.1.1_linux_amd64.AppImage",
+        "LocalTranscriber_0.1.1_linux_amd64.rpm",
+        "LocalTranscriber_0.1.1_linux_arm64.deb",
+        "LocalTranscriber_0.1.1_linux_arm64.AppImage",
+        "LocalTranscriber_0.1.1_linux_arm64.rpm"
       ]
     }
   ]

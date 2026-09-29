@@ -302,11 +302,11 @@
     return list[0];
   }
   const INSTALL = {
-    dmg: (a) => [`Open <b>${esc(a.name)}</b> and drag the app into <b>Applications</b>.`, 'First launch: right-click the app → <b>Open</b> if macOS asks.', { code: 'brew install whisper-cpp', note: 'Optional — enables Metal-accelerated transcription.' }],
-    exe: (a) => [`Run <b>${esc(a.name)}</b> and follow the installer.`, 'If SmartScreen appears, choose <b>More info → Run anyway</b>.', { code: 'setx WHISPER_CLI_PATH C:\\whisper\\whisper-cli.exe', note: 'Optional — point the app at a whisper.cpp build.' }],
+    dmg: (a) => [`Open <b>${esc(a.name)}</b> and drag the app into <b>Applications</b>.`, 'Launch it and click <b>Allow</b> when macOS asks for the microphone.', 'If macOS blocks the first launch: <b>System Settings → Privacy &amp; Security → Open Anyway</b>.'],
+    exe: (a) => [`Run <b>${esc(a.name)}</b> — it installs in seconds.`, 'If SmartScreen appears, choose <b>More info → Run anyway</b>.', 'Record your first meeting. Transcription is built in.'],
     msi: (a) => [`Double-click <b>${esc(a.name)}</b> (ideal for managed / Intune deployments).`, { code: `msiexec /i "${a.name}" /qn`, note: 'Silent install for IT.' }],
-    appimage: (a) => ['Make it executable and run it — no install needed.', { code: `chmod +x ${a.name} && ./${a.name}` }, { code: 'sudo voxtype setup gpu --enable', note: 'Optional — GPU transcription via voxtype.' }],
-    deb: (a) => ['Install with apt:', { code: `sudo apt install ./${a.name}` }],
+    appimage: (a) => ['Make it executable and run it — no install needed.', { code: `chmod +x ${a.name} && ./${a.name}` }],
+    deb: (a) => [`Double-click <b>${esc(a.name)}</b> and choose <b>Install</b>.`, { code: `sudo apt install ./${a.name}`, note: 'Or from a terminal:' }],
     rpm: (a) => ['Install with dnf:', { code: `sudo dnf install ./${a.name}` }],
   };
   const codeBlock = (c) => `<div class="code">${esc(c)}<button class="copy" data-copy="${esc(c)}" aria-label="Copy command"><svg width="14" height="14"><use href="#i-copy"/></svg></button></div>`;
@@ -337,7 +337,7 @@
         ${pending ? `<span class="btn btn-sm" aria-disabled="true">Soon</span>` : `<a class="btn btn-sm" href="${x.url}" aria-label="Download ${esc(x.name)}"><svg width="15" height="15"><use href="#i-dl"/></svg>Download</a>`}
       </div>`).join('');
     $('#shaCmd').textContent = os === 'win' ? 'certutil -hashfile <file> SHA256' : os === 'mac' ? 'shasum -a 256 <file>' : 'sha256sum <file>';
-    $('#backendHint').innerHTML = os === 'mac' ? 'Run <code class="mono">brew install whisper-cpp</code> — Metal acceleration is built in.' : os === 'win' ? 'Grab a whisper.cpp release (CUDA or Vulkan build) and set <code class="mono">WHISPER_CLI_PATH</code>.' : 'Install voxtype (Arch: <code class="mono">voxtype-bin</code>) or any whisper.cpp build with <code class="mono">whisper-cli</code>.';
+    $('#backendHint').innerHTML = os === 'mac' ? 'whisper.cpp ships inside the app, GPU-accelerated with Metal. The speech model downloads once, on your first transcription.' : 'whisper.cpp ships inside the app. The speech model downloads once (~550 MB), on your first transcription.';
   }
 
   const osIcon = (os) => `<span class="plat"><svg><use href="#${OS_META[os].icon}"/></svg>${OS_META[os].name}</span>`;
