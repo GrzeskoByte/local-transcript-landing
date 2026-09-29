@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Local Transcriber — private, on-device meeting transcription</title>
+  <meta name="description" content="Record any meeting, transcribe it with whisper.cpp or Parakeet on your own GPU, and summarize it with a local LLM. Your audio never leaves your machine. Free for macOS, Windows and Linux.">
+  <meta name="theme-color" content="#05070f">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <meta property="og:title" content="Local Transcriber — every meeting, every word, on your device">
+  <meta property="og:description" content="Private desktop meeting recorder with native GPU transcription and local AI summaries. macOS · Windows · Linux.">
+  <meta property="og:image" content="assets/og-image.jpg">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preload" href="assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-apple" viewBox="0 0 24 24"><path fill="currentColor" d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></symbol>
+  <symbol id="i-windows" viewBox="0 0 24 24"><path fill="currentColor" d="M2 4.5 10 3.4v7.8H2zm9-1.2L22 1.8v9.4H11zM2 12.4h8v7.8l-8-1.1zm9 0h11v9.4l-11-1.5z"/></symbol>
+  <symbol id="i-linux" viewBox="0 0 24 24"><path fill="currentColor" d="M12 1.5c-2.6 0-4.2 2.2-4.2 5 0 1.3.3 2.2-.4 3.5-.9 1.6-3 4.1-3 7.3 0 .8.2 1.5.5 2.1-.6.3-1.4.6-1.4 1.3 0 .9 1.5 1 3 1.4 1.1.3 1.7.9 2.6.9.8 0 1.3-.6 1.8-.8.6-.1 1.6-.1 2.2 0 .5.2 1 .8 1.8.8.9 0 1.5-.6 2.6-.9 1.5-.4 3-.5 3-1.4 0-.7-.8-1-1.4-1.3.3-.6.5-1.3.5-2.1 0-3.2-2.1-5.7-3-7.3-.7-1.3-.4-2.2-.4-3.5 0-2.8-1.6-5-4.2-5zm-1.6 4.2c.5 0 .8.6.8 1.3 0 .3-.1.6-.2.8l-.9-.3c.1-.1.1-.3.1-.5 0-.3-.1-.5-.3-.5-.2 0-.3.2-.3.5v.2l-.6-.3v-.2c0-.7.5-1.3 1-1.3zm3.2 0c.6 0 1 .6 1 1.3v.4l-.6.2V7.1c0-.4-.2-.6-.4-.6s-.4.2-.4.6v.3l-.8.3c-.1-.2-.1-.4-.1-.7 0-.7.6-1.3 1.3-1.3zM12 8.3c.9 0 2.3.6 2.3 1 0 .3-1.4 1.3-2.3 1.3s-2.3-1-2.3-1.3c0-.4 1.4-1 2.3-1zm-2.3 3c.7.4 1.5.8 2.3.8.8 0 1.6-.4 2.3-.8.9 1.5 1.9 3.3 1.9 5.2 0 2.7-1.9 4.2-4.2 4.2s-4.2-1.5-4.2-4.2c0-1.9 1-3.7 1.9-5.2z"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-gh" viewBox="0 0 24 24"><path fill="currentColor" d="M12 .5a11.5 11.5 0 0 0-3.64 22.42c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3zM12 10v4M12 17h.01" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16" r="1.3" fill="currentColor"/></symbol>
+  <symbol id="i-wave" viewBox="0 0 24 24"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 10v4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></symbol>
+</svg>
+
+<div class="ambient" aria-hidden="true"><div class="glow g1"></div><div class="glow g2"></div><div class="noise"></div></div>
+
+<!-- ============ NAV ============ -->
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a href="#top" class="logo"><img src="assets/logo.svg" alt="" width="32" height="32">Local Transcriber</a>
+    <nav class="nav-links" id="navLinks" aria-label="Primary">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#download">Download</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-sm" href="https://github.com/GrzeskoByte/local-transcript" target="_blank" rel="noopener"><svg width="16" height="16"><use href="#i-gh"/></svg>GitHub</a>
+      <a class="btn btn-sm btn-primary" href="#download"><svg width="15" height="15"><use href="#i-dl"/></svg><span class="lbl">Download</span></a>
+    </div>
+    <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+  </div>
+</header>
+
+<main id="top">
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="wrap">
+    <a class="eyebrow fade-up" href="#download" style="animation-delay:.05s"><b id="heroVer">v0.1.0</b> Free &amp; open source · macOS · Windows · Linux</a>
+    <h1 class="display reveal-words" id="heroTitle">Every meeting. Every word. <span class="br"><span class="grad-text">Never leaves your machine.</span></span></h1>
+    <p class="lede fade-up" style="animation-delay:.7s">Local Transcriber records your calls, transcribes them with <b>whisper.cpp</b> or <b>Parakeet</b> on your own GPU, and turns them into summaries your team can use. No account. No cloud. No uploads.</p>
+    <div class="hero-ctas fade-up" style="animation-delay:.85s">
+      <a class="btn btn-lg btn-primary" href="#download" id="heroDl"><svg width="20" height="20"><use href="#i-dl"/></svg><span id="heroDlText">Download for free</span></a>
+      <a class="btn btn-lg" href="#reel"><svg width="16" height="16"><use href="#i-play"/></svg>Watch the 15s tour</a>
+    </div>
+    <div class="hero-meta fade-up" style="animation-delay:1s">
+      <span><i></i>Works offline</span><span><i></i>Recording never depends on AI</span><span><i></i>MIT licensed</span>
+    </div>
+
+    <!-- live product mock -->
+    <div class="stage fade-up" style="animation-delay:1.05s" id="stage">
+      <div class="stage-steps" role="tablist" aria-label="Product tour">
+        <button class="stage-step" data-scene="0" role="tab"><span class="n">01</span>Record<span class="bar"></span></button>
+        <button class="stage-step" data-scene="1" role="tab"><span class="n">02</span>Capture<span class="bar"></span></button>
+        <button class="stage-step" data-scene="2" role="tab"><span class="n">03</span>Transcribe<span class="bar"></span></button>
+        <button class="stage-step" data-scene="3" role="tab"><span class="n">04</span>Summarize<span class="bar"></span></button>
+      </div>
+      <div class="mock-frame" id="mockFrame">
+        <div class="mock-glow" aria-hidden="true"></div>
+        <div class="float-chip" id="chipA" style="left:-96px;top:30%"><span class="ic" style="background:#4f46e5"><svg width="18" height="18"><use href="#i-wave"/></svg></span><span>Two separate tracks<small>Me · Others — no diarization needed</small></span></div>
+        <div class="float-chip" id="chipB" style="right:-80px;top:12%"><span class="ic" style="background:#b45309"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg></span><span>Vulkan GPU active<small>whisper.cpp · large-v3-turbo</small></span></div>
+        <div class="float-chip" id="chipC" style="right:-80px;bottom:12%"><span class="ic" style="background:#047857"><svg width="18" height="18"><use href="#i-check"/></svg></span><span>Published to GitLab wiki<small>meetings/q3-roadmap-sync</small></span></div>
+        <div class="mock-scaler" id="mockScaler" aria-label="Animated preview of the Local Transcriber app" role="img">
+          <div class="win" id="win">
+            <div class="titlebar"><i></i><i></i><i></i><span>Local Transcriber</span></div>
+            <div class="layout">
+              <aside class="sidebar">
+                <div class="brand"><span class="brand-mark"><svg width="18" height="18" style="color:#fff"><use href="#i-wave"/></svg></span><span><span class="brand-name">Local Transcriber</span><span class="brand-sub">private · on-device</span></span></div>
+                <div class="navl">
+                  <div class="nav-label">Workspace</div>
+                  <div class="nav-item" data-nav="meet"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>Meetings</div>
+                  <div class="nav-item" data-nav="new"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4"/></svg>New recording</div>
+                  <div class="nav-item" data-nav="rec" id="navRec" style="display:none"><span class="live-dot"></span>Recording…</div>
+                  <div class="nav-item"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Calendar</div>
+                  <div class="nav-item"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>Settings</div>
+                </div>
+                <div class="sidebar-footer">
+                  <div class="model-chip"><span class="model-dot" id="mDot"></span><span id="mText">Speech model ready</span></div>
+                  <div class="privacy-note">Recordings &amp; transcripts never leave this device.</div>
+                </div>
+              </aside>
+              <div class="main" id="mockMain">
+                <!-- new -->
+                <div class="screen" data-screen="0">
+                  <h3>New Meeting</h3>
+                  <p class="muted">Record first, transcribe later — everything stays on this device.</p>
+                  <div class="steps"><div class="step done"></div><div class="step" id="step2"></div></div>
+                  <div class="card" style="margin-top:16px">
+                    <label class="field-label" style="margin-top:0">Recording source</label>
+                    <div class="source-grid">
+                      <div class="source-card"><div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4"/></svg></div><strong>Speaker</strong><small>Microphone — voices in the room. Choose this for in-person meetings.</small></div>
+                      <div class="source-card"><div class="icon"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><strong>Device Audio</strong><small>Sound from a shared browser tab or window. Availability varies by OS &amp; browser.</small></div>
+                      <div class="source-card" id="dualCard"><div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="2" width="6" height="12" rx="3"/><path d="M0.5 10a5.5 5.5 0 0 0 11 0M6 16v3"/><rect x="13" y="8" width="9" height="7" rx="2"/><path d="M17.5 15v3M15 20h5"/></svg></div><strong>Mic + Device</strong><small>Two-way: your microphone and the call/system audio at once. Best for online meetings.</small></div>
+                    </div>
+                    <label class="field-label">Meeting title</label>
+                    <div class="input"><span id="titleText"></span><span class="caret"></span></div>
+                    <div style="margin-top:16px"><span class="ubtn ubtn-primary ubtn-lg" id="startBtn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4"/></svg>Start recording</span></div>
+                  </div>
+                </div>
+                <!-- recording -->
+                <div class="screen" data-screen="1">
+                  <div class="rec-hero">
+                    <div class="src">Two-way · Mic + Device Audio</div>
+                    <h3>Q3 Roadmap Sync</h3>
+                    <div class="rec-orb"></div>
+                    <div class="timer" id="timer">00:00:00</div>
+                    <div class="rec-state">Recording</div>
+                    <div class="meters"><div class="meter"><b>ME</b><div class="lv" id="lvMe"></div></div><div class="meter o"><b>OTHERS</b><div class="lv" id="lvOt"></div></div></div>
+                    <div class="rec-btns"><span class="ubtn btn-ghost">Pause</span><span class="ubtn btn-stop" id="stopBtn">Stop</span></div>
+                    <div class="saved-note"><svg width="13" height="13"><use href="#i-check"/></svg><span id="chunk">Saved to disk · chunk 000001.webm</span></div>
+                  </div>
+                  <div class="card" style="margin-top:14px;display:flex;gap:14px;align-items:center">
+                    <div style="width:42px;height:42px;border-radius:12px;background:#eef2ff;color:#4f46e5;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-6h3zM3 19a2 2 0 0 0 2 2h1v-6H3z"/></svg></div>
+                    <div><strong>Wear headphones</strong><div class="muted" style="font-size:13px;margin:0">So your mic doesn't re-capture the call audio.</div></div>
+                  </div>
+                </div>
+                <!-- transcribe -->
+                <div class="screen" data-screen="2">
+                  <div class="muted" style="font-weight:650;margin:0">← Meetings</div>
+                  <h3 style="margin-top:8px">Q3 Roadmap Sync</h3>
+                  <p class="muted">Sep 28, 2026 · 47:12 · 2 tracks</p>
+                  <div class="pill-row"><span class="pill pill-dual">Two-way</span><span class="pill pill-processing" id="stPill">Transcribing</span></div>
+                  <div class="card" style="margin-top:14px;padding:10px 16px">
+                    <div class="track"><span class="track-label">Me</span><div class="wave" id="wMe"></div></div>
+                    <div class="track"><span class="track-label">Others</span><div class="wave" id="wOt"></div></div>
+                  </div>
+                  <div class="card" id="loaderCard">
+                    <div class="loader-head"><div class="spinner"></div><strong id="stageTxt">Transcribing…</strong><span class="muted" style="margin:0" id="pct">0%</span><span class="ubadge" style="margin-left:auto">large-v3-turbo</span></div>
+                    <div class="prog"><i id="prog"></i></div>
+                  </div>
+                  <div class="h4">Transcript</div>
+                  <ul class="transcript" id="tr"></ul>
+                </div>
+                <!-- summary -->
+                <div class="screen" data-screen="3">
+                  <div class="card" style="padding:20px 22px">
+                    <div style="display:flex;align-items:center;gap:10px"><strong style="font-size:17px">Summary</strong><span class="ubadge">ollama · llama3.1</span><span class="pill pill-completed" style="margin-left:auto">Completed</span></div>
+                    <p id="sumText" style="font-size:14.5px;line-height:1.6;margin:10px 0 0;color:#334155;min-height:70px"></p>
+                    <strong style="display:block;margin-top:10px">Key points</strong>
+                    <ul class="kp" id="kp"></ul>
+                  </div>
+                  <div class="card" style="display:flex;gap:8px;flex-wrap:wrap">
+                    <span class="ubtn" id="gitBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m22 13.3-2.4-7.4-1.5-4.6a.5.5 0 0 0-1 0l-1.5 4.6H8.4L6.9 1.3a.5.5 0 0 0-1 0L4.4 5.9 2 13.3a1 1 0 0 0 .4 1.1L12 21.5l9.6-7.1a1 1 0 0 0 .4-1.1z"/></svg>Upload to GitLab</span>
+                    <span class="ubtn">Calendar event</span><span class="ubtn">Export TXT</span><span class="ubtn">Export MD</span><span class="ubtn">Export JSON</span>
+                  </div>
+                </div>
+                <svg class="cursor" id="cursor" viewBox="0 0 24 24"><path d="M5 3l14 8-6 1.5L10 19z" fill="#fff" stroke="#0f172a" stroke-width="1.5" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TECH STRIP ============ -->
+<section class="strip" aria-label="Built with">
+  <p>Built on proven open source</p>
+  <div class="marquee"><div class="marquee-track" id="marquee"></div></div>
+</section>
+
+<!-- ============ SHOWREEL ============ -->
+<section class="section" id="reel" style="padding-top:90px">
+  <div class="wrap">
+    <div class="section-head rv">
+      <span class="kicker">Showreel</span>
+      <h2 class="title">Fifteen seconds. <span class="grad-text">The whole workflow.</span></h2>
+    </div>
+    <div class="reel-box rv" id="reelBox">
+      <video id="reelVideo" preload="metadata" playsinline poster="assets/showreel-poster.jpg" src="assets/showreel.mp4"></video>
+      <button class="reel-play" id="reelPlay" aria-label="Play the showreel"><span><svg width="34" height="34" style="color:#fff;margin-left:4px"><use href="#i-play"/></svg></span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW ============ -->
+<section class="section" id="how">
+  <div class="wrap">
+    <div class="section-head rv">
+      <span class="kicker">How it works</span>
+      <h2 class="title">Record first. <span class="grad-text">Transcribe when you're ready.</span></h2>
+      <p>Recording and transcription are separate on purpose. Your audio is saved the moment it's captured — AI is an optional second step that can never damage the original.</p>
+    </div>
+    <div class="flow">
+      <article class="flow-card rv">
+        <div class="flow-viz" aria-hidden="true">
+          <div style="display:flex;gap:26px;align-items:center">
+            <div class="eq" id="eqA"></div><div class="eq o" id="eqB"></div>
+          </div>
+        </div>
+        <span class="idx">01 — RECORD</span>
+        <h3>Capture both sides</h3>
+        <p>Microphone, device audio, or both at once as two separate tracks. 5-second chunks hit the disk as you talk, so a crash can't eat your meeting.</p>
+        <svg class="flow-arrow" aria-hidden="true"><use href="#i-chev"/></svg>
+      </article>
+      <article class="flow-card rv" style="transition-delay:.1s">
+        <div class="flow-viz" aria-hidden="true">
+          <div class="typing">
+            <div class="row"><span class="t">00:04</span>Let's lock the Q3 roadmap.</div>
+            <div class="row"><span class="t">00:11</span>Offline mode is done.</div>
+            <div class="row"><span class="t">00:19</span>Transcription stays on-device?</div>
+          </div>
+        </div>
+        <span class="idx">02 — TRANSCRIBE</span>
+        <h3>Native, GPU-fast</h3>
+        <p>One click runs whisper.cpp or Parakeet locally, with live progress, cancel and retry. Language is auto-detected. Nothing is uploaded.</p>
+        <svg class="flow-arrow" aria-hidden="true"><use href="#i-chev"/></svg>
+      </article>
+      <article class="flow-card rv" style="transition-delay:.2s">
+        <div class="flow-viz" aria-hidden="true">
+          <div class="fly">
+            <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m22 13.3-2.4-7.4-1.5-4.6a.5.5 0 0 0-1 0l-1.5 4.6H8.4L6.9 1.3a.5.5 0 0 0-1 0L4.4 5.9 2 13.3a1 1 0 0 0 .4 1.1L12 21.5l9.6-7.1a1 1 0 0 0 .4-1.1z"/></svg>GitLab</span>
+            <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Calendar</span>
+            <span><svg width="18" height="18"><use href="#i-dl"/></svg>Export</span>
+          </div>
+        </div>
+        <span class="idx">03 — SHARE</span>
+        <h3>Summarize &amp; ship</h3>
+        <p>A local LLM writes the summary and key points. Push it to a GitLab wiki, book the follow-up in your calendar, or export TXT, Markdown and JSON.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section class="section" id="features">
+  <div class="wrap">
+    <div class="section-head rv">
+      <span class="kicker">Features</span>
+      <h2 class="title">Everything a meeting needs. <span class="grad-text">Nothing it doesn't.</span></h2>
+      <p>A desktop app built on Tauri and Rust — small, fast and native on every platform.</p>
+    </div>
+    <div class="bento">
+      <article class="tile w4 rv">
+        <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="2" width="6" height="12" rx="3"/><path d="M0.5 10a5.5 5.5 0 0 0 11 0M6 16v3"/><rect x="13" y="8" width="9" height="7" rx="2"/><path d="M17.5 15v3M15 20h5"/></svg></div>
+        <h3>Two-way capture for online calls</h3>
+        <p>Your mic and the call audio are recorded as two independent tracks, so every line is labeled <b style="color:#c7d2fe">Me</b> or <b style="color:#6ee7b7">Others</b> — speaker labels without diarization guesswork.</p>
+        <div class="viz tracks2" aria-hidden="true">
+          <div class="tr"><b>ME</b><div class="w" id="bwMe"></div></div>
+          <div class="tr o"><b>OTHERS</b><div class="w" id="bwOt"></div></div>
+        </div>
+      </article>
+      <article class="tile w2 rv" style="transition-delay:.08s">
+        <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></div>
+        <h3>One-click GPU</h3>
+        <p>Vulkan and CUDA acceleration through voxtype. Metal on Apple Silicon.</p>
+        <div class="viz gpu"><svg width="22" height="22" style="color:#fbbf24;flex:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="5" width="14" height="14" rx="2"/><path d="M9 1v4M15 1v4M9 19v4M15 19v4M1 9h4M1 15h4M19 9h4M19 15h4"/></svg><code>gpu: active · vulkan</code></div>
+      </article>
+      <article class="tile w2 rv">
+        <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16v16H4z"/><path d="M4 9h16M9 4v16"/></svg></div>
+        <h3>Crash-safe by design</h3>
+        <p>Audio streams to disk in small chunks. Power cut? Reopen and hit Recover.</p>
+        <div class="viz chunks" id="chunks" aria-hidden="true"></div>
+      </article>
+      <article class="tile w2 rv" style="transition-delay:.08s">
+        <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h12M3 18h6"/></svg></div>
+        <h3>Tiered model catalog</h3>
+        <p>Models ranked S–D by accuracy. Pick, download, done.</p>
+        <div class="viz tiers">
+          <div><b style="background:#eef2ff;color:#4338ca">S</b><span>parakeet-tdt-0.6b-v3</span><em>best</em></div>
+          <div><b style="background:#ecfdf5;color:#047857">A</b><span>large-v3-turbo</span><em>default</em></div>
+          <div><b style="background:#eff6ff;color:#1d4ed8">B</b><span>small.en</span><em>fast</em></div>
+        </div>
+      </article>
+      <article class="tile w2 rv" style="transition-delay:.16s">
+        <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>
+        <h3>Full-text search</h3>
+        <p>Find that one sentence across every meeting.</p>
+        <div class="viz">
+          <div class="search-demo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="q" id="searchQ"></span></div>
+          <div class="hits"><div>…lock the Q3 <mark>roadmap</mark> before Friday.</div><div>…<mark>roadmap</mark> review moved to Thursday.</div></div>
+        </div>
+      </article>
+      <article class="tile w3 rv">
+        <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></div>
+        <h3>Summaries from a local LLM</h3>
+        <p>Use Ollama or an OpenCode agent on your machine, or point it at any OpenAI-compatible endpoint you choose.</p>
+        <div class="viz sum-card">
+          <div class="h">Summary <span class="tag2">ollama · llama3.1</span></div>
+          The team agreed to lock the Q3 roadmap by Friday; GitLab export ships next sprint.
+          <ul><li>Roadmap locked by Friday</li><li>Follow-up call Thursday 14:00</li></ul>
+        </div>
+      </article>
+      <article class="tile w3 rv" style="transition-delay:.08s">
+        <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+        <h3>Your company calendar</h3>
+        <p>CalDAV, Microsoft Graph and Exchange EWS. See recordings next to real events and create follow-ups straight from a summary.</p>
+        <div class="viz mini-cal" id="miniCal" aria-hidden="true"></div>
+      </article>
+      <article class="tile w3 rv">
+        <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m22 13.3-2.4-7.4-1.5-4.6a.5.5 0 0 0-1 0l-1.5 4.6H8.4L6.9 1.3a.5.5 0 0 0-1 0L4.4 5.9 2 13.3a1 1 0 0 0 .4 1.1L12 21.5l9.6-7.1a1 1 0 0 0 .4-1.1z"/></svg></div>
+        <h3>Team sharing without a backend</h3>
+        <p>Publish transcripts and summaries to a GitLab wiki, issue or repository folder. Access follows project membership — there's no server of ours in between.</p>
+        <div class="viz dest"><span>📄 Wiki page</span><span>🗂 meetings/&lt;slug&gt;/transcript.md</span><span>🐞 Issue</span></div>
+      </article>
+      <article class="tile w3 rv" style="transition-delay:.08s">
+        <div class="ico"><svg width="22" height="22"><use href="#i-dl"/></svg></div>
+        <h3>Open formats, real files</h3>
+        <p>Every finished meeting is mirrored to <code class="mono" style="color:#c7d2fe">~/Documents/Local Transcribe</code>. Export anywhere, anytime.</p>
+        <div class="viz exports"><span>transcript.txt</span><span>transcript.md</span><span>transcript.json</span><span>me.webm</span><span>others.webm</span><span>meeting.json</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRIVACY ============ -->
+<section class="section" id="privacy">
+  <div class="wrap privacy">
+    <div class="vault rv" aria-hidden="true">
+      <div class="ring"></div><div class="ring r2"></div><div class="ring r3"></div>
+      <div class="orbit" id="orbit"></div>
+      <div class="core"><svg width="46%" height="46%" style="color:#fff"><use href="#i-lock"/></svg></div>
+    </div>
+    <div>
+      <div class="rv">
+        <span class="kicker">Privacy</span>
+        <h2 class="title" style="margin-bottom:18px">Private by architecture, <span class="grad-text">not by promise.</span></h2>
+        <p style="color:var(--muted);font-size:18px;margin:0 0 28px">There's no account and no server to trust. Here is exactly what can leave your machine — and when.</p>
+      </div>
+      <div class="ledger rv">
+        <div class="ledger-row"><div><strong>Your audio</strong><small>Recorded, stored and transcribed locally.</small></div><span class="status never">NEVER LEAVES</span></div>
+        <div class="ledger-row"><div><strong>Transcripts &amp; summaries</strong><small>Local by default — with Ollama, even the AI runs on-device.</small></div><span class="status never">STAYS LOCAL</span></div>
+        <div class="ledger-row"><div><strong>Analytics &amp; telemetry</strong><small>None. Not anonymous, not opt-out. None.</small></div><span class="status never">NONE</span></div>
+        <div class="ledger-row"><div><strong>GitLab, calendar, remote LLM</strong><small>Only if you turn them on, only to endpoints you configure.</small></div><span class="status optin">YOUR CHOICE</span></div>
+      </div>
+      <div class="privacy-points rv"><span><b>0</b>accounts</span><span><b>0</b>servers of ours</span><span><b>0</b>bytes of audio uploaded</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DOWNLOAD ============ -->
+<section class="section" id="download">
+  <div class="wrap">
+    <div class="section-head rv">
+      <span class="kicker">Download</span>
+      <h2 class="title">Get Local Transcriber <span class="grad-text">for your platform.</span></h2>
+      <p>Native installers for macOS, Windows and Linux. Free, MIT-licensed, no sign-up.</p>
+    </div>
+
+    <div class="dl rv">
+      <div class="dl-top">
+        <div class="rel-chip"><span class="dot" id="relDot"></span><span class="v" id="relVer">v0.1.0</span><span id="relDate">Latest release</span></div>
+        <div class="os-tabs" role="tablist" aria-label="Platform" id="osTabs">
+          <button class="os-tab" role="tab" data-os="mac" id="tab-mac" aria-controls="dlPanel"><svg width="16" height="16"><use href="#i-apple"/></svg>macOS</button>
+          <button class="os-tab" role="tab" data-os="win" id="tab-win" aria-controls="dlPanel"><svg width="15" height="15"><use href="#i-windows"/></svg>Windows</button>
+          <button class="os-tab" role="tab" data-os="linux" id="tab-linux" aria-controls="dlPanel"><svg width="16" height="16"><use href="#i-linux"/></svg>Linux</button>
+        </div>
+      </div>
+
+      <div class="dl-main" id="dlPanel" role="tabpanel">
+        <div class="primary-dl" id="primaryDl"></div>
+        <div class="bin-table" id="binTable"></div>
+      </div>
+      <p class="dl-note" id="dlNote" hidden></p>
+
+      <div class="backend">
+        <div class="backend-card"><h4><svg><use href="#i-wave"/></svg>Recording works out of the box</h4><p>No model, no GPU, no setup. Transcription is an optional add-on you can install any time.</p></div>
+        <div class="backend-card"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="5" width="14" height="14" rx="2"/><path d="M9 1v4M15 1v4M9 19v4M15 19v4M1 9h4M1 15h4M19 9h4M19 15h4"/></svg>Add a speech engine</h4><p id="backendHint">Install whisper.cpp (<code class="mono">whisper-cli</code>) or voxtype — the app detects it automatically.</p></div>
+        <div class="backend-card"><h4><svg><use href="#i-check"/></svg>Verify your download</h4><p>Every binary lists its SHA-256. Compare with <code class="mono" id="shaCmd">shasum -a 256 &lt;file&gt;</code>.</p></div>
+      </div>
+    </div>
+
+    <!-- all binaries, all versions -->
+    <div class="matrix-wrap rv">
+      <div class="matrix-head">
+        <div><h3>All binaries &amp; versions</h3><p>Every build for every platform, straight from GitHub Releases.</p></div>
+        <div class="filter" id="platFilter" role="group" aria-label="Filter by platform">
+          <button data-f="all" aria-pressed="true">All</button>
+          <button data-f="mac" aria-pressed="false">macOS</button>
+          <button data-f="win" aria-pressed="false">Windows</button>
+          <button data-f="linux" aria-pressed="false">Linux</button>
+        </div>
+      </div>
+      <div id="releases"></div>
+    </div>
+
+    <!-- build from source -->
+    <div class="matrix-wrap rv" id="build">
+      <div class="matrix-head"><div><h3>Build from source</h3><p>Node 20+, Rust and the Tauri prerequisites for your OS.</p></div></div>
+      <div class="source-grid2">
+        <div class="terminal"><div class="bar"><i></i><i></i><i></i><span>build.sh</span></div>
+<pre><span class="p">$ </span>git clone https://github.com/GrzeskoByte/local-transcript
+<span class="p">$ </span>cd local-transcript
+<span class="p">$ </span>npm install --ignore-scripts
+<span class="p">$ </span>npm run tauri:build
+<span class="c"># installers → src-tauri/target/release/bundle/</span></pre></div>
+        <div class="terminal"><div class="bar"><i></i><i></i><i></i><span>speech-engine.sh</span></div>
+<pre><span class="c"># macOS (Metal)</span>
+<span class="p">$ </span>brew install whisper-cpp
+<span class="c"># Linux — voxtype (Arch: voxtype-bin), GPU optional</span>
+<span class="p">$ </span>sudo voxtype setup gpu --enable
+<span class="c"># Windows — whisper.cpp release, then point the app at it</span>
+<span class="p">&gt; </span>setx WHISPER_CLI_PATH C:\whisper\whisper-cli.exe</pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="section" id="faq" style="padding-top:40px">
+  <div class="wrap">
+    <div class="section-head rv"><span class="kicker">FAQ</span><h2 class="title">Questions, answered.</h2></div>
+    <div class="faq rv">
+      <details><summary>Does my audio ever get uploaded?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>No. Recording, storage and transcription all happen on your computer. The only features that send anything over the network are ones you switch on yourself — GitLab sharing, calendar sync or a remote LLM — and they send text, never audio.</p></details>
+      <details><summary>Do I need an internet connection?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>Only to download the app and a speech model once. After that, recording, transcription and local summaries work fully offline.</p></details>
+      <details><summary>Which speech model should I use?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>Start with <code>large-v3-turbo</code> — it's the default and a great balance of speed and accuracy. For the best accuracy, <code>parakeet-tdt-0.6b-v3</code> sits at the top of the S-tier; on Linux it needs voxtype's ONNX variant. Settings ranks every model so the choice is obvious.</p></details>
+      <details><summary>Can it record Zoom, Meet or Teams calls?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>Yes — choose <b>Mic + Device</b> and share the call's tab or window when asked. Your voice and the call are saved as separate tracks. Device-audio availability depends on your OS, and headphones are recommended so the mic doesn't pick up the speakers.</p></details>
+      <details><summary>What happens if transcription fails?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>Nothing bad. The recording is the source of truth and is never modified by transcription. You'll see "Your original recording is still safe." and a Retry button.</p></details>
+      <details><summary>macOS says the app can't be opened — what now?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>Early builds may not be notarized yet. Right-click the app in Applications and choose <b>Open</b>, or run <code>xattr -dr com.apple.quarantine "/Applications/Local Transcribe.app"</code>.</p></details>
+      <details><summary>Is it really free?<span class="pm"><svg width="14" height="14"><use href="#i-plus"/></svg></span></summary><p>Yes. Local Transcriber is open source under the MIT license. No tiers, no trial, no account.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section class="final">
+  <div class="wrap rv">
+    <img class="big-logo" src="assets/logo.svg" alt="" width="96" height="96">
+    <h2>Your meetings. <span class="grad-text">Your machine.</span></h2>
+    <p>Record. Transcribe. Summarize. Privately.</p>
+    <div class="hero-ctas">
+      <a class="btn btn-lg btn-primary" href="#download" id="finalDl"><svg width="20" height="20"><use href="#i-dl"/></svg>Download for free</a>
+      <a class="btn btn-lg" href="https://github.com/GrzeskoByte/local-transcript" target="_blank" rel="noopener"><svg width="18" height="18"><use href="#i-gh"/></svg>Star on GitHub</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a href="#top" class="logo" style="font-size:15px"><img src="assets/logo.svg" alt="" width="26" height="26" style="width:26px;height:26px">Local Transcriber</a>
+    <nav aria-label="Footer">
+      <a href="#download">Download</a>
+      <a href="https://github.com/GrzeskoByte/local-transcript/releases" target="_blank" rel="noopener">Releases</a>
+      <a href="https://github.com/GrzeskoByte/local-transcript" target="_blank" rel="noopener">Source</a>
+      <a href="https://github.com/GrzeskoByte/local-transcript/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
+    </nav>
+    <span>© 2026 GrzeskoByte · Your recording and transcript stay on this device.</span>
+  </div>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!--
+  Release manifest — the fallback when the GitHub API is unreachable or has no releases yet.
+  Mirrors .github/workflows/release.yml in the app repo: one GitHub release per platform
+  (v<ver>-windows, v<ver>-macos, v<ver>-ubuntu), files named LocalTranscriber_<ver>_<os>_<arch>.<ext>.
+  Set "published": true once those releases exist; add older versions to the array.
+-->
+<script type="application/json" id="manifest">
+{
+  "repo": "GrzeskoByte/local-transcript",
+  "releases": [
+    {
+      "version": "0.1.0",
+      "date": null,
+      "published": false,
+      "assets": [
+        "LocalTranscriber_0.1.0_windows_x64-setup.exe",
+        "LocalTranscriber_0.1.0_windows_x64.msi",
+        "LocalTranscriber_0.1.0_windows_arm64-setup.exe",
+        "LocalTranscriber_0.1.0_macos_arm64.dmg",
+        "LocalTranscriber_0.1.0_macos_x64.dmg",
+        "LocalTranscriber_0.1.0_linux_amd64.deb",
+        "LocalTranscriber_0.1.0_linux_amd64.AppImage",
+        "LocalTranscriber_0.1.0_linux_amd64.rpm",
+        "LocalTranscriber_0.1.0_linux_arm64.deb",
+        "LocalTranscriber_0.1.0_linux_arm64.AppImage",
+        "LocalTranscriber_0.1.0_linux_arm64.rpm"
+      ]
+    }
+  ]
+}
+</script>
+<script src="app.js" defer></script>
+</body>
+</html>
