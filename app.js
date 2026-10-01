@@ -219,7 +219,6 @@
      ========================================================= */
   const REPO = 'GrzeskoByte/local-transcript';
   const RELEASES_URL = `https://github.com/${REPO}/releases`;
-  const CACHE_KEY = 'lt.releases.v2';
   const OS_META = {
     mac: { name: 'macOS', icon: 'i-apple', req: 'macOS 12 Monterey or later' },
     win: { name: 'Windows', icon: 'i-windows', req: 'Windows 10 or 11 · WebView2 (preinstalled)' },
@@ -274,11 +273,6 @@
       return parseReleases(await res.json());
     } finally { clearTimeout(to); }
   }
-
-  // Last good answer, per visitor — shown instantly on the next visit and kept
-  // if GitHub is unreachable or rate-limited (60 requests/hour per IP).
-  function readCache() { try { const c = JSON.parse(localStorage.getItem(CACHE_KEY)); return Array.isArray(c?.rels) ? c.rels : null; } catch { return null; } }
-  function writeCache(rels) { try { localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), rels })); } catch { /* storage unavailable */ } }
 
   // --- platform detection ---
   const ua = navigator.userAgent;
@@ -379,9 +373,9 @@
       $('#relVer').textContent = 'Latest';
       $('#relDate').textContent = state.source === 'loading' ? 'Checking GitHub…' : 'On GitHub Releases';
     }
-    if (state.source === 'cached' || state.source === 'offline') {
+    if (state.source === 'offline') {
       note.hidden = false;
-      note.innerHTML = `<svg width="18" height="18"><use href="#i-warn"/></svg><span>Couldn't reach GitHub for live release data${state.source === 'cached' ? ' — showing the last list this browser saw' : ''}. <a href="${RELEASES_URL}" target="_blank" rel="noopener">Open GitHub Releases</a> for the newest build.</span>`;
+      note.innerHTML = `<svg width="18" height="18"><use href="#i-warn"/></svg><span>Couldn't reach GitHub for live release data. <a href="${RELEASES_URL}" target="_blank" rel="noopener">Open GitHub Releases</a> for the newest build.</span>`;
     } else note.hidden = true;
     const r = latestFor(userOS); const a = r && pick(r.assets, userOS);
     const label = `Download for ${OS_META[userOS].name}`;
@@ -397,14 +391,12 @@
   });
   $$('#platFilter button').forEach((b) => b.addEventListener('click', () => { state.filter = b.dataset.f; $$('#platFilter button').forEach((x) => x.setAttribute('aria-pressed', x === b)); renderHistory(); }));
 
-  // First paint from this browser's last known list (if any), then always
-  // replace it with the live list from GitHub.
+  // Paint a loading state, then the live list from GitHub. Nothing is stored
+  // on the visitor's device (see privacy.html).
   const paint = () => { renderStatus(); renderPlatform(); renderHistory(); };
-  const cached = readCache();
-  if (cached?.length) state.rels = cached;
   paint();
   Promise.all([loadReleases(), archReady])
-    .then(([rels]) => { state.rels = rels; state.source = 'live'; if (rels.length) writeCache(rels); })
-    .catch(() => { state.source = state.rels.length ? 'cached' : 'offline'; })
+    .then(([rels]) => { state.rels = rels; state.source = 'live'; })
+    .catch(() => { state.source = 'offline'; })
     .then(paint);
 })();

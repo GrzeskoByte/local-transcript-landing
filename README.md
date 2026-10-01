@@ -29,9 +29,25 @@ visit, so publishing a release updates the site with no change here. Other tags
 some platforms, each platform falls back to its newest release that has files.
 Draft releases are not visible to the API, so they don't show up until published.
 
-The last good list is cached in the visitor's `localStorage` and shown if GitHub
-is unreachable or rate-limited (60 unauthenticated requests/hour per IP); with no
-cache, the buttons link to GitHub Releases instead.
+If GitHub is unreachable or rate-limited (60 unauthenticated requests/hour per
+IP), the buttons link to GitHub Releases instead. Nothing is stored on the
+visitor's device — see `privacy.html`.
+
+## Analytics
+
+`index.html` loads Vercel Web Analytics and Speed Insights from
+`/_vercel/insights/script.js` and `/_vercel/speed-insights/script.js`. Both scripts
+exist only on Vercel deployments, and only after **Analytics** and
+**Speed Insights** are enabled in the Vercel project; elsewhere (local preview,
+other hosts) they 404 harmlessly.
+
+## Legal pages
+
+`privacy.html` (privacy policy, GDPR/LOPDGDD) and `legal.html` (aviso legal, LSSI-CE
+art. 10) are bilingual (English/Spanish) and linked from the footer. Owner name and
+contact email appear in both files. If the site starts collecting
+anything new (cookies, localStorage, forms, other third-party scripts), update
+`privacy.html` first.
 
 ## Deploy
 
