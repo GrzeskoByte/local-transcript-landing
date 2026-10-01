@@ -391,6 +391,24 @@
   });
   $$('#platFilter button').forEach((b) => b.addEventListener('click', () => { state.filter = b.dataset.f; $$('#platFilter button').forEach((x) => x.setAttribute('aria-pressed', x === b)); renderHistory(); }));
 
+  // Count download clicks as a Vercel Web Analytics custom event (cookieless,
+  // same as page views). Only the file name and which button was used are sent —
+  // nothing about the visitor. Downloads made outside this site (straight from
+  // GitHub, the in-app updater) are counted by GitHub's per-file download_count;
+  // see README.md › Analytics.
+  const DL_FROM = { heroDl: 'hero', finalDl: 'footer-cta', primaryDl: 'recommended', binTable: 'file-list', releases: 'release-history', dlNote: 'fallback' };
+  function trackDownload(e) {
+    if (e.type === 'auxclick' && e.button !== 1) return;
+    const link = e.target.closest?.('a[href]'); if (!link) return;
+    const href = link.href;
+    const file = href.includes(`/${REPO}/releases/download/`) ? decodeURIComponent(href.split('/').pop()) : href.startsWith(RELEASES_URL) ? 'GitHub Releases page' : null;
+    if (!file) return;
+    const box = link.closest(Object.keys(DL_FROM).map((id) => '#' + id).join(','));
+    window.va?.('event', { name: 'Download', data: { file, from: box ? DL_FROM[box.id] : 'other' } });
+  }
+  document.addEventListener('click', trackDownload);
+  document.addEventListener('auxclick', trackDownload);
+
   // Paint a loading state, then the live list from GitHub. Nothing is stored
   // on the visitor's device (see privacy.html).
   const paint = () => { renderStatus(); renderPlatform(); renderHistory(); };

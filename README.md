@@ -41,6 +41,26 @@ exist only on Vercel deployments, and only after **Analytics** and
 **Speed Insights** are enabled in the Vercel project; elsewhere (local preview,
 other hosts) they 404 harmlessly.
 
+### Download counts
+
+Two sources, because not every download goes through this site:
+
+- **Clicks on this site** — `app.js` sends a Vercel custom event `Download` with
+  `file` (asset name, e.g. `LocalTranscriber_1.2.0_macos_arm64.dmg`, or
+  `GitHub Releases page` for the fallback links) and `from` (`hero`,
+  `recommended`, `file-list`, `release-history`, `footer-cta`, `fallback`,
+  `other`). See it under **Analytics → Events** in Vercel. Custom events need a
+  Vercel Pro (or Enterprise) plan; on Hobby the call is silently dropped.
+- **Every download, from any source** (this site, someone linking GitHub
+  directly, the in-app updater) — GitHub's per-file `download_count`, which is
+  the complete total:
+
+      curl -s 'https://api.github.com/repos/GrzeskoByte/local-transcript/releases?per_page=100' \
+        | jq -r '.[] | .assets[] | "\(.download_count)\t\(.name)"' | sort -rn
+
+Neither adds cookies or device storage, and both are disclosed in `privacy.html`
+§2.2–2.3. The desktop app itself stays telemetry-free.
+
 ## Legal pages
 
 `privacy.html` (privacy policy, GDPR/LOPDGDD) and `legal.html` (aviso legal, LSSI-CE
