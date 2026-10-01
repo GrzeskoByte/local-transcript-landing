@@ -33,6 +33,14 @@ The last good list is cached in the visitor's `localStorage` and shown if GitHub
 is unreachable or rate-limited (60 unauthenticated requests/hour per IP); with no
 cache, the buttons link to GitHub Releases instead.
 
+## Analytics
+
+`index.html` loads Vercel Web Analytics and Speed Insights from
+`/_vercel/insights/script.js` and `/_vercel/speed-insights/script.js`. Both scripts
+exist only on Vercel deployments, and only after **Analytics** and
+**Speed Insights** are enabled in the Vercel project; elsewhere (local preview,
+other hosts) they 404 harmlessly.
+
 ## Deploy
 
 Any static host: GitHub Pages, Netlify, Cloudflare Pages — serve the folder as-is.
