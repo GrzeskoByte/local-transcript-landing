@@ -44,9 +44,8 @@ other hosts) they 404 harmlessly.
 ## Legal pages
 
 `privacy.html` (privacy policy, GDPR/LOPDGDD) and `legal.html` (aviso legal, LSSI-CE
-art. 10) are bilingual (English/Spanish) and linked from the footer. The owner's
-details are the highlighted `[FULL NAME]`, `[NIF/NIE]`, `[POSTAL ADDRESS]` and
-`[CONTACT EMAIL]` placeholders in both files. If the site starts collecting
+art. 10) are bilingual (English/Spanish) and linked from the footer. Owner name and
+contact email appear in both files. If the site starts collecting
 anything new (cookies, localStorage, forms, other third-party scripts), update
 `privacy.html` first.
 
