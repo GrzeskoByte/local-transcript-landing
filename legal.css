@@ -1,0 +1,39 @@
+/* Shared styles for privacy.html and legal.html — plain reading pages in the DESIGN.md style. */
+:root {
+  --primary: #e91d2a; --canvas: #ffffff; --ink: #000000; --frame-ink: #000000;
+  --yellow-sticker: #fcc20f; --link: #0000ee; --tint-sage: #b3bd95; --tint-olive: #8e8a25;
+  --f-display: "Arial Black", "Arial Bold", Gadget, Helvetica, Arial, system-ui, sans-serif;
+  --f-sans: Helvetica, Arial, system-ui, sans-serif;
+  --f-serif: "Times New Roman", Times, serif;
+  --frame: 8px;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--frame-ink); padding: var(--frame); color: var(--ink); font: 400 14px/1.4 var(--f-serif); }
+.wrap { background: var(--canvas); min-height: calc(100vh - 2 * var(--frame)); padding: 0 max(16px, calc((100% - 728px) / 2)) 32px; }
+header.top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; background: var(--frame-ink); color: var(--canvas); margin: 0 -16px 24px; padding: 12px 16px; }
+.logo { display: inline-flex; align-items: center; gap: 8px; color: var(--canvas); font: 900 14px/1 var(--f-display); text-transform: uppercase; text-decoration: none; }
+.logo img { width: 32px; height: 32px; }
+.lang { display: flex; }
+.lang a { background: var(--canvas); color: var(--ink); border: 1px solid var(--canvas); font: 700 12px/1 var(--f-sans); text-transform: uppercase; text-decoration: none; padding: 6px 12px; }
+.lang a + a { background: var(--yellow-sticker); }
+h1 { background: var(--tint-olive); font: 900 36px/1 var(--f-display); text-transform: uppercase; padding: 24px 16px; margin: 0 0 8px; overflow-wrap: anywhere; }
+h2 { font: 700 16px/1.2 var(--f-sans); text-transform: uppercase; border-bottom: 1px solid var(--frame-ink); padding-bottom: 4px; margin: 32px 0 8px; }
+h3 { font: 700 14px/1.2 var(--f-sans); text-transform: uppercase; margin: 20px 0 4px; }
+.updated { font-size: 12px; margin: 0 0 24px; }
+a { color: var(--link); overflow-wrap: anywhere; }
+a:visited { color: var(--link); }
+:focus-visible { outline: 2px dotted var(--ink); outline-offset: 2px; }
+header.top :focus-visible { outline-color: var(--canvas); }
+ul { padding-left: 22px; }
+li { margin: 4px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 12px 0; display: block; overflow-x: auto; border: 1px solid var(--frame-ink); }
+th, td { text-align: left; vertical-align: top; padding: 6px 12px; border: 1px solid var(--frame-ink); }
+th { font: 700 11px/1.35 var(--f-serif); text-transform: uppercase; }
+.card { border: 1px solid var(--frame-ink); background: var(--tint-sage); padding: 12px 16px; }
+.card p { margin: 4px 0; }
+.todo { background: var(--yellow-sticker); color: var(--ink); padding: 0 4px; }
+hr { border: 0; border-top: 8px solid var(--frame-ink); margin: 48px -16px 24px; }
+footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--frame-ink); font-size: 12px; display: flex; gap: 16px; flex-wrap: wrap; }
+@media (max-width: 768px) { :root { --frame: 4px; } }
+@media (max-width: 480px) { :root { --frame: 2px; } h1 { font-size: 26px; padding: 16px 12px; } }

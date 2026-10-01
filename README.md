@@ -23,12 +23,53 @@ published as one release per platform by the app's `release.yml` workflow:
 | `v<ver>-macos` | `LocalTranscriber_<ver>_macos_{arm64,x64}.dmg` |
 | `v<ver>-ubuntu` | `LocalTranscriber_<ver>_linux_{amd64,arm64}.{deb,AppImage,rpm}` |
 
-The page merges them back into one entry per version, recommends the right file
-for the visitor's OS/arch, and shows sizes and SHA-256 digests. Draft releases are
-not visible to the API, so the page shows "in preparation" until they are published.
+The page merges them back into one entry per version and always shows the newest
+one: the version number, hero button and file list all come from the API on every
+visit, so publishing a release updates the site with no change here. Other tags
+(the app's `updater` release that holds `latest.json`) and non-installer files
+(`.sig`, `SHA256SUMS.txt`) are ignored. While a new version is still building for
+some platforms, each platform falls back to its newest release that has files.
+Draft releases are not visible to the API, so they don't show up until published.
 
-If the API is unreachable it falls back to the inline `<script id="manifest">` in
-`index.html` (same file names). Set `"published": true` there once a version is live.
+If GitHub is unreachable or rate-limited (60 unauthenticated requests/hour per
+IP), the buttons link to GitHub Releases instead. Nothing is stored on the
+visitor's device — see `privacy.html`.
+
+## Analytics
+
+`index.html` loads Vercel Web Analytics and Speed Insights from
+`/_vercel/insights/script.js` and `/_vercel/speed-insights/script.js`. Both scripts
+exist only on Vercel deployments, and only after **Analytics** and
+**Speed Insights** are enabled in the Vercel project; elsewhere (local preview,
+other hosts) they 404 harmlessly.
+
+### Download counts
+
+Two sources, because not every download goes through this site:
+
+- **Clicks on this site** — `app.js` sends a Vercel custom event `Download` with
+  `file` (asset name, e.g. `LocalTranscriber_1.2.0_macos_arm64.dmg`, or
+  `GitHub Releases page` for the fallback links) and `from` (`hero`,
+  `recommended`, `file-list`, `release-history`, `footer-cta`, `fallback`,
+  `other`). See it under **Analytics → Events** in Vercel. Custom events need a
+  Vercel Pro (or Enterprise) plan; on Hobby the call is silently dropped.
+- **Every download, from any source** (this site, someone linking GitHub
+  directly, the in-app updater) — GitHub's per-file `download_count`, which is
+  the complete total:
+
+      curl -s 'https://api.github.com/repos/GrzeskoByte/local-transcript/releases?per_page=100' \
+        | jq -r '.[] | .assets[] | "\(.download_count)\t\(.name)"' | sort -rn
+
+Neither adds cookies or device storage, and both are disclosed in `privacy.html`
+§2.2–2.3. The desktop app itself stays telemetry-free.
+
+## Legal pages
+
+`privacy.html` (privacy policy, GDPR/LOPDGDD) and `legal.html` (aviso legal, LSSI-CE
+art. 10) are bilingual (English/Spanish) and linked from the footer. Owner name and
+contact email appear in both files. If the site starts collecting
+anything new (cookies, localStorage, forms, other third-party scripts), update
+`privacy.html` first.
 
 ## Deploy
 

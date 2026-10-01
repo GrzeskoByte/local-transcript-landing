@@ -25,10 +25,10 @@
   video.addEventListener('ended', () => { reelBox.classList.remove('playing'); video.controls = false; });
 
   /* =========================================================
-     Downloads — live GitHub Releases, manifest fallback
+     Downloads — always the newest GitHub Release, read live
      ========================================================= */
-  const manifest = JSON.parse($('#manifest').textContent);
-  const REPO = manifest.repo;
+  const REPO = 'GrzeskoByte/local-transcript';
+  const RELEASES_URL = `https://github.com/${REPO}/releases`;
   const OS_META = {
     mac: { name: 'macOS', icon: 'i-apple', req: 'macOS 12 Monterey or later' },
     win: { name: 'Windows', icon: 'i-windows', req: 'Windows 10 or 11 · WebView2 (preinstalled)' },
@@ -50,49 +50,38 @@
     return { os, arch, archLabel, kind, label, ext };
   }
 
-  async function loadReleases() {
-    try {
-      const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 6000);
-      const res = await fetch(`https://api.github.com/repos/${REPO}/releases?per_page=30`, { headers: { Accept: 'application/vnd.github+json' }, signal: ctl.signal });
-      clearTimeout(to);
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const data = (await res.json()).filter((r) => !r.draft);
-      // Each version ships as one GitHub release PER PLATFORM (v1.2.3-windows,
-      // v1.2.3-macos, v1.2.3-ubuntu); merge them back into one version here.
-      const byVersion = new Map();
-      for (const r of data) {
-        const m = /^v?(\d+\.\d+\.\d+)(?:-(windows|macos|ubuntu))?$/.exec(r.tag_name);
-        if (!m) continue;
-        const version = m[1];
-        const entry = byVersion.get(version) ?? { version, tag: 'v' + version, date: null, prerelease: false, live: true, notes: [], assets: [] };
-        if (!entry.date || r.published_at > entry.date) entry.date = r.published_at;
-        entry.prerelease = entry.prerelease || r.prerelease;
-        entry.notes.push({ label: { windows: 'Windows', macos: 'macOS', ubuntu: 'Ubuntu' }[m[2]] ?? 'All platforms', url: r.html_url });
-        for (const a of r.assets) {
-          const c = classify(a.name);
-          if (c) entry.assets.push({ name: a.name, size: a.size, url: a.browser_download_url, sha: (a.digest || '').replace(/^sha256:/, ''), downloads: a.download_count, ...c });
-        }
-        byVersion.set(version, entry);
+  // Each version ships as one GitHub release PER PLATFORM (v1.2.3-windows,
+  // v1.2.3-macos, v1.2.3-ubuntu); merge them back into one entry per version,
+  // newest first. Other tags (e.g. the `updater` manifest release) are ignored.
+  function parseReleases(data) {
+    const byVersion = new Map();
+    for (const r of data) {
+      if (r.draft) continue;
+      const m = /^v?(\d+\.\d+\.\d+)(?:-(windows|macos|ubuntu))?$/.exec(r.tag_name);
+      if (!m) continue;
+      const version = m[1];
+      const entry = byVersion.get(version) ?? { version, date: null, prerelease: false, notes: [], assets: [] };
+      if (!entry.date || r.published_at > entry.date) entry.date = r.published_at;
+      entry.prerelease = entry.prerelease || r.prerelease;
+      entry.notes.push({ label: { windows: 'Windows', macos: 'macOS', ubuntu: 'Ubuntu' }[m[2]] ?? 'All platforms', url: r.html_url });
+      for (const a of r.assets) {
+        const c = classify(a.name);
+        if (c) entry.assets.push({ name: a.name, size: a.size, url: a.browser_download_url, sha: (a.digest || '').replace(/^sha256:/, ''), ...c });
       }
-      const semver = (v) => v.split('.').map(Number);
-      const rels = [...byVersion.values()].filter((r) => r.assets.length)
-        .sort((a, b) => { const x = semver(a.version), y = semver(b.version); return y[0] - x[0] || y[1] - x[1] || y[2] - x[2]; });
-      if (rels.length) return { rels, source: 'live' };
-      return { rels: fromManifest(false), source: 'pending' };
-    } catch {
-      const published = manifest.releases.some((r) => r.published);
-      return { rels: fromManifest(published), source: published ? 'offline' : 'pending' };
+      byVersion.set(version, entry);
     }
+    const semver = (v) => v.split('.').map(Number);
+    return [...byVersion.values()].filter((r) => r.assets.length)
+      .sort((a, b) => { const x = semver(a.version), y = semver(b.version); return y[0] - x[0] || y[1] - x[1] || y[2] - x[2]; });
   }
-  function fromManifest(assumePublished) {
-    const TAG = { win: 'windows', mac: 'macos', linux: 'ubuntu' };
-    return manifest.releases.map((r) => ({
-      version: r.version, tag: 'v' + r.version, date: r.date, prerelease: false, live: false, pending: !assumePublished && !r.published,
-      notes: Object.entries({ windows: 'Windows', macos: 'macOS', ubuntu: 'Ubuntu' }).map(([t, label]) => ({ label, url: `https://github.com/${REPO}/releases/tag/v${r.version}-${t}` })),
-      assets: r.assets.map((name) => ({ name, ...classify(name) })).filter((a) => a.os).map((a) => ({
-        ...a, size: null, sha: '', url: `https://github.com/${REPO}/releases/download/v${r.version}-${TAG[a.os]}/${encodeURIComponent(a.name)}`,
-      })),
-    }));
+
+  async function loadReleases() {
+    const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 8000);
+    try {
+      const res = await fetch(`https://api.github.com/repos/${REPO}/releases?per_page=100`, { headers: { Accept: 'application/vnd.github+json' }, cache: 'no-cache', signal: ctl.signal });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return parseReleases(await res.json());
+    } finally { clearTimeout(to); }
   }
 
   // --- platform detection ---
@@ -121,21 +110,33 @@
   };
   const codeBlock = (c) => `<div class="code">${esc(c)}<button class="copy" data-copy="${esc(c)}" aria-label="Copy command"><svg width="14" height="14"><use href="#i-copy"/></svg></button></div>`;
 
-  let state = { rels: [], source: 'pending', os: userOS, filter: 'all' };
+  let state = { rels: [], source: 'loading', os: userOS, filter: 'all' };
+
+  // Newest stable release — or, while a new version is still building for some
+  // platforms, the newest one that actually has files for this OS.
+  const stable = () => state.rels.filter((r) => !r.prerelease);
+  const latest = () => stable()[0] || state.rels[0] || null;
+  const latestFor = (os) => [...stable(), ...state.rels].find((r) => r.assets.some((a) => a.os === os)) || null;
+  const ghButton = (label) => `<a class="btn btn-lg btn-primary" href="${RELEASES_URL}" target="_blank" rel="noopener"><svg width="20" height="20"><use href="#i-gh"/></svg>${label}</a>`;
 
   function renderPlatform() {
-    const rel = state.rels[0]; const os = state.os; const meta = OS_META[os];
+    const os = state.os; const meta = OS_META[os]; const rel = latestFor(os);
     $$('.os-tab').forEach((t) => { const on = t.dataset.os === os; t.setAttribute('aria-selected', on); t.tabIndex = on ? 0 : -1; const you = $('.you', t); if (t.dataset.os === userOS && !you) t.insertAdjacentHTML('beforeend', '<span class="you">you</span>'); });
-    const a = pick(rel.assets, os); const pending = rel.pending;
+    const head = `<div class="os-name"><svg><use href="#${meta.icon}"/></svg><div><h3>${meta.name}</h3><p class="req">${meta.req}</p></div></div>`;
+    if (!rel) {
+      const loading = state.source === 'loading';
+      $('#primaryDl').innerHTML = head + (loading ? '<p class="req">Looking up the newest release…</p>' : ghButton('Get it on GitHub Releases'));
+      $('#binTable').innerHTML = `<h4><span>${meta.name} binaries</span></h4><p class="req">${loading ? 'Loading…' : `Couldn't load the file list right now. <a href="${RELEASES_URL}" target="_blank" rel="noopener">Open GitHub Releases →</a>`}</p>`;
+      return;
+    }
+    const a = pick(rel.assets, os);
     const steps = a ? (INSTALL[a.kind] || (() => []))(a) : [];
-    $('#primaryDl').innerHTML = `
-      <div class="os-name"><svg><use href="#${meta.icon}"/></svg><div><h3>${meta.name}</h3><p class="req">${meta.req}</p></div></div>
-      ${a ? `<a class="btn btn-lg btn-primary" ${pending ? `href="#build" aria-disabled="false" data-pending="1"` : `href="${a.url}"`}>
-          <svg width="20" height="20"><use href="#i-dl"/></svg>${pending ? 'Release in preparation' : `Download ${a.label === 'Installer' ? 'installer' : a.label}`}
+    $('#primaryDl').innerHTML = `${head}
+      ${a ? `<a class="btn btn-lg btn-primary" href="${a.url}">
+          <svg width="20" height="20"><use href="#i-dl"/></svg>Download ${a.label === 'Installer' ? 'installer' : a.label}
           <span class="sub">${esc(a.ext)}${a.size ? ' · ' + fmtSize(a.size) : ''}</span></a>
         <div class="fname">${esc(a.name)}</div>` : '<p class="req">No build for this platform yet.</p>'}
       <ol class="install-steps">${steps.map((s) => `<li><div>${typeof s === 'string' ? s : `${s.note ? `${esc(s.note)}` : ''}${codeBlock(s.code)}`}</div></li>`).join('')}</ol>`;
-    const pb = $('#primaryDl [data-pending]'); if (pb) pb.addEventListener('click', (e) => { e.preventDefault(); $('#build').scrollIntoView({ block: 'start' }); });
 
     const list = rel.assets.filter((x) => x.os === os);
     $('#binTable').innerHTML = `<h4><span>${meta.name} binaries · v${esc(rel.version)}</span><span>${list.length} files</span></h4>` + list.map((x) => `
@@ -144,7 +145,7 @@
           <div class="nm"><strong>${esc(x.label)}</strong><span class="ext">.${esc(x.ext)}</span><span class="arch">${x.archLabel}</span>${a && x.name === a.name ? '<span class="rec">Recommended</span>' : ''}</div>
           <div class="meta"><span>${esc(x.name)}</span>${x.size ? `<span>${fmtSize(x.size)}</span>` : ''}${x.sha ? `<span class="sha">sha256:${x.sha.slice(0, 12)}… <button class="copy" data-copy="${x.sha}" aria-label="Copy SHA-256"><svg width="12" height="12"><use href="#i-copy"/></svg></button></span>` : ''}</div>
         </div>
-        ${pending ? `<span class="btn btn-sm" aria-disabled="true">Soon</span>` : `<a class="btn btn-sm" href="${x.url}" aria-label="Download ${esc(x.name)}"><svg width="15" height="15"><use href="#i-dl"/></svg>Download</a>`}
+        <a class="btn btn-sm" href="${x.url}" aria-label="Download ${esc(x.name)}"><svg width="15" height="15"><use href="#i-dl"/></svg>Download</a>
       </div>`).join('');
     $('#shaCmd').textContent = os === 'win' ? 'certutil -hashfile <file> SHA256' : os === 'mac' ? 'shasum -a 256 <file>' : 'sha256sum <file>';
     $('#backendHint').innerHTML = os === 'mac' ? 'whisper.cpp ships inside the app, GPU-accelerated with Metal. The speech model downloads once, on your first transcription.' : 'whisper.cpp ships inside the app. The speech model downloads once (~550 MB), on your first transcription.';
@@ -153,13 +154,18 @@
   const osIcon = (os) => `<span class="plat"><svg><use href="#${OS_META[os].icon}"/></svg>${OS_META[os].name}</span>`;
   function renderHistory() {
     const f = state.filter;
+    if (!state.rels.length) {
+      $('#releases').innerHTML = `<p class="req">${state.source === 'loading' ? 'Loading releases from GitHub…' : `Couldn't reach GitHub right now. <a href="${RELEASES_URL}" target="_blank" rel="noopener">See every release on GitHub →</a>`}</p>`;
+      return;
+    }
+    const top = latest();
     $('#releases').innerHTML = state.rels.map((r, i) => {
       const assets = r.assets.filter((a) => f === 'all' || a.os === f).sort((a, b) => 'mac win linux'.indexOf(a.os) - 'mac win linux'.indexOf(b.os));
-      return `<details class="release" ${i === 0 ? 'open' : ''}>
-        <summary><span class="v">v${esc(r.version)}</span>${i === 0 ? '<span class="latest">Latest</span>' : ''}${r.prerelease ? '<span class="pre">Pre-release</span>' : ''}${r.pending ? '<span class="pre">In preparation</span>' : ''}<span class="date">${fmtDate(r.date)}</span><span class="count">${assets.length} binaries</span></summary>
+      return `<details class="release" ${r === top ? 'open' : ''}>
+        <summary><span class="v">v${esc(r.version)}</span>${r === top ? '<span class="latest">Latest</span>' : ''}${r.prerelease ? '<span class="pre">Pre-release</span>' : ''}<span class="date">${fmtDate(r.date)}</span><span class="count">${assets.length} binaries</span></summary>
         <table class="matrix"><thead><tr><th>Platform</th><th>Package</th><th>Arch</th><th>File</th><th>Size</th><th></th></tr></thead><tbody>
         ${assets.map((a) => `<tr><td>${osIcon(a.os)}</td><td>${esc(a.label)}</td><td class="s">${a.archLabel}</td><td class="f">${esc(a.name)}</td><td class="s">${fmtSize(a.size) || '—'}</td>
-          <td class="a">${r.pending ? '<span class="btn btn-sm" aria-disabled="true">Soon</span>' : `<a class="btn btn-sm" href="${a.url}"><svg width="14" height="14"><use href="#i-dl"/></svg>Get</a>`}</td></tr>`).join('')}
+          <td class="a"><a class="btn btn-sm" href="${a.url}"><svg width="14" height="14"><use href="#i-dl"/></svg>Get</a></td></tr>`).join('')}
         </tbody></table>
         <div class="rel-notes">Release notes: ${r.notes.map((n) => `<a href="${n.url}" target="_blank" rel="noopener">${n.label} →</a>`).join(' · ')}</div>
       </details>`;
@@ -167,23 +173,25 @@
   }
 
   function renderStatus() {
-    const rel = state.rels[0];
-    $('#relVer').textContent = 'v' + rel.version; $('#heroVer').textContent = 'v' + rel.version;
-    $('#relDot').classList.toggle('pending', !!rel.pending);
-    $('#relDate').textContent = rel.pending ? 'First release in preparation' : rel.date ? `Latest release · ${fmtDate(rel.date)}` : 'Latest release';
-    const note = $('#dlNote');
-    if (state.source === 'pending') {
+    const rel = latest(); const note = $('#dlNote');
+    $('#relDot').classList.toggle('pending', state.source !== 'live');
+    if (rel) {
+      $('#relVer').textContent = 'v' + rel.version; $('#heroVer').textContent = 'v' + rel.version;
+      $('#relDate').textContent = rel.date ? `Latest release · ${fmtDate(rel.date)}` : 'Latest release';
+      const prev = stable()[1]; if (prev && $('#updNew')) { $('.upd-cur').textContent = prev.version; $('#updNew').textContent = rel.version; }
+    } else {
+      $('#relVer').textContent = 'Latest';
+      $('#relDate').textContent = state.source === 'loading' ? 'Checking GitHub…' : 'On GitHub Releases';
+    }
+    if (state.source === 'offline') {
       note.hidden = false;
-      note.innerHTML = `<svg width="18" height="18"><use href="#i-warn"/></svg><span>The first public build is being prepared. The list below shows the exact binaries each release ships. Until it's live, <a href="#build" id="noteBuild">build from source</a> or <a href="https://github.com/${REPO}/releases" target="_blank" rel="noopener">watch releases on GitHub</a>.</span>`;
-      $('#noteBuild').addEventListener('click', (e) => { e.preventDefault(); $('#build').scrollIntoView({ block: 'start' }); });
-    } else if (state.source === 'offline') {
-      note.hidden = false;
-      note.innerHTML = `<svg width="18" height="18"><use href="#i-warn"/></svg><span>Couldn't reach GitHub for live release data — showing the bundled release list. <a href="https://github.com/${REPO}/releases" target="_blank" rel="noopener">Open GitHub Releases</a>.</span>`;
+      note.innerHTML = `<svg width="18" height="18"><use href="#i-warn"/></svg><span>Couldn't reach GitHub for live release data. <a href="${RELEASES_URL}" target="_blank" rel="noopener">Open GitHub Releases</a> for the newest build.</span>`;
     } else note.hidden = true;
-    const a = pick(rel.assets, userOS);
+    const r = latestFor(userOS); const a = r && pick(r.assets, userOS);
     const label = `Download for ${OS_META[userOS].name}`;
-    $('#heroDlText').textContent = rel.pending ? `Get it for ${OS_META[userOS].name}` : label;
-    if (a && !rel.pending) { $('#heroDl').href = a.url; $('#finalDl').href = a.url; $('#finalDl').lastChild.textContent = label; }
+    $('#heroDlText').textContent = label; $('#finalDl').lastChild.textContent = label;
+    const href = a ? a.url : state.source === 'loading' ? '#download' : RELEASES_URL;
+    $('#heroDl').href = href; $('#finalDl').href = href;
   }
 
   $$('.os-tab').forEach((t) => t.addEventListener('click', () => { state.os = t.dataset.os; renderPlatform(); }));
@@ -193,9 +201,30 @@
   });
   $$('#platFilter button').forEach((b) => b.addEventListener('click', () => { state.filter = b.dataset.f; $$('#platFilter button').forEach((x) => x.setAttribute('aria-pressed', x === b)); renderHistory(); }));
 
-  // first paint from the manifest, then upgrade with live data
-  state.rels = fromManifest(manifest.releases.some((r) => r.published)); state.source = state.rels[0].pending ? 'pending' : 'offline';
+  // Count download clicks as a Vercel Web Analytics custom event (cookieless,
+  // same as page views). Only the file name and which button was used are sent —
+  // nothing about the visitor. Downloads made outside this site (straight from
+  // GitHub, the in-app updater) are counted by GitHub's per-file download_count;
+  // see README.md › Analytics.
+  const DL_FROM = { heroDl: 'hero', finalDl: 'footer-cta', primaryDl: 'recommended', binTable: 'file-list', releases: 'release-history', dlNote: 'fallback' };
+  function trackDownload(e) {
+    if (e.type === 'auxclick' && e.button !== 1) return;
+    const link = e.target.closest?.('a[href]'); if (!link) return;
+    const href = link.href;
+    const file = href.includes(`/${REPO}/releases/download/`) ? decodeURIComponent(href.split('/').pop()) : href.startsWith(RELEASES_URL) ? 'GitHub Releases page' : null;
+    if (!file) return;
+    const box = link.closest(Object.keys(DL_FROM).map((id) => '#' + id).join(','));
+    window.va?.('event', { name: 'Download', data: { file, from: box ? DL_FROM[box.id] : 'other' } });
+  }
+  document.addEventListener('click', trackDownload);
+  document.addEventListener('auxclick', trackDownload);
+
+  // Paint a loading state, then the live list from GitHub. Nothing is stored
+  // on the visitor's device (see privacy.html).
   const paint = () => { renderStatus(); renderPlatform(); renderHistory(); };
   paint();
-  Promise.all([loadReleases(), archReady]).then(([r]) => { state.rels = r.rels; state.source = r.source; paint(); });
+  Promise.all([loadReleases(), archReady])
+    .then(([rels]) => { state.rels = rels; state.source = 'live'; })
+    .catch(() => { state.source = 'offline'; })
+    .then(paint);
 })();
