@@ -7,7 +7,9 @@ App repo: [GrzeskoByte/local-transcript](https://github.com/GrzeskoByte/local-tr
 
     python3 -m http.server 8765    # then open http://127.0.0.1:8765
 
-(Use a server rather than file:// so the self-hosted fonts load.)
+(Use a server rather than file:// so the GitHub Releases fetch works.)
+
+Visual design follows `DESIGN.md` (catalog-era 1996 style, system fonts only).
 
 ## Downloads / binaries
 

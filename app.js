@@ -3,14 +3,6 @@
   'use strict';
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
-  const P = (t, a, b) => clamp((t - a) / (b - a));
-  const lerp = (a, b, k) => a + (b - a) * k;
-  const eIO = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
-  const hash = (n) => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
-  const noise = (x) => { const i = Math.floor(x), f = x - i, u = f * f * (3 - 2 * f); return lerp(hash(i), hash(i + 1), u); };
-  const pad = (n) => String(n).padStart(2, '0');
   const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -27,192 +19,10 @@
   }
   document.addEventListener('click', (e) => { const b = e.target.closest('[data-copy]'); if (b) copy(b.dataset.copy, b); });
 
-  /* ---------- nav ---------- */
-  const nav = $('#nav');
-  const onScroll = () => nav.classList.toggle('scrolled', scrollY > 8);
-  addEventListener('scroll', onScroll, { passive: true }); onScroll();
-  $('#menuBtn').addEventListener('click', () => { const open = nav.classList.toggle('open'); $('#menuBtn').setAttribute('aria-expanded', open); });
-  $$('#navLinks a').forEach((a) => a.addEventListener('click', () => { nav.classList.remove('open'); $('#menuBtn').setAttribute('aria-expanded', 'false'); }));
-
-  /* ---------- hero headline word reveal ---------- */
-  (function splitWords(root) {
-    let i = 0;
-    const walk = (node) => {
-      [...node.childNodes].forEach((n) => {
-        if (n.nodeType === 3) {
-          const frag = document.createDocumentFragment();
-          n.textContent.split(/(\s+)/).forEach((part) => {
-            if (!part) return;
-            if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
-            const w = el('span', 'w'); w.textContent = part; w.style.animationDelay = (0.15 + i++ * 0.07) + 's'; frag.appendChild(w);
-          });
-          n.replaceWith(frag);
-        } else if (n.nodeType === 1) {
-          // gradient spans: apply the gradient per word so background-clip still works
-          if (n.classList.contains('grad-text')) { n.classList.remove('grad-text'); n.dataset.grad = '1'; }
-          walk(n);
-          if (n.dataset.grad) $$('.w', n).forEach((w) => w.classList.add('grad-text'));
-        }
-      });
-    };
-    walk(root);
-  })($('#heroTitle'));
-
-  /* ---------- scroll reveal ---------- */
-  const io = new IntersectionObserver((ents) => ents.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-  $$('.rv').forEach((n) => io.observe(n));
-
-  /* ---------- bento spotlight ---------- */
-  $$('.tile').forEach((t) => t.addEventListener('pointermove', (e) => { const r = t.getBoundingClientRect(); t.style.setProperty('--mx', (e.clientX - r.left) + 'px'); t.style.setProperty('--my', (e.clientY - r.top) + 'px'); }));
-
-  /* ---------- tech marquee ---------- */
-  const TECH = [['Tauri v2', '#fbbf24'], ['Rust', '#fb923c'], ['React', '#38bdf8'], ['TypeScript', '#60a5fa'], ['whisper.cpp', '#a5b4fc'], ['Parakeet TDT', '#34d399'], ['voxtype', '#f472b6'], ['Ollama', '#e2e8f0'], ['OPFS', '#c084fc'], ['IndexedDB', '#fcd34d'], ['Vulkan', '#f87171'], ['Metal', '#cbd5e1']];
-  const mq = $('#marquee');
-  [0, 1].forEach((dup) => TECH.forEach(([n, c]) => { const s = el('span', 'tech', `<i style="background:${c};box-shadow:0 0 10px ${c}"></i>${n}`); if (dup) s.setAttribute('aria-hidden', 'true'); mq.appendChild(s); }));
-
   /* ---------- showreel ---------- */
   const video = $('#reelVideo'), reelBox = $('#reelBox');
   $('#reelPlay').addEventListener('click', () => { video.controls = true; video.play(); reelBox.classList.add('playing'); });
   video.addEventListener('ended', () => { reelBox.classList.remove('playing'); video.controls = false; });
-
-  /* ---------- small decorative visuals ---------- */
-  const mkBars = (host, n, f) => { for (let i = 0; i < n; i++) { const b = el('i'); f(b, i); host.appendChild(b); } };
-  mkBars($('#eqA'), 9, (b, i) => { b.style.animationDelay = (-i * 0.17) + 's'; b.style.animationDuration = (0.7 + hash(i) * 0.6) + 's'; });
-  mkBars($('#eqB'), 9, (b, i) => { b.style.animationDelay = (-i * 0.23) + 's'; b.style.animationDuration = (0.8 + hash(i + 9) * 0.6) + 's'; });
-  const waveBar = (seed) => (b, i) => { const on = noise(i * 0.3 + seed) > 0.45; b.style.height = (on ? 20 + 80 * noise(i * 1.7 + seed * 3) : 8) + '%'; };
-  mkBars($('#bwMe'), 90, waveBar(1)); mkBars($('#bwOt'), 90, waveBar(40));
-  const chunks = $('#chunks');
-  for (let i = 1; i <= 12; i++) { const s = el('span'); s.textContent = String(i).padStart(6, '0') + '.webm'; s.style.animationDelay = (i * 0.45) + 's'; chunks.appendChild(s); }
-  const cal = $('#miniCal');
-  ['M', 'T', 'W', 'T', 'F', 'S', 'S'].forEach((d) => { const s = el('span', null, d); s.style.border = '0'; s.style.color = 'var(--faint)'; s.style.aspectRatio = 'auto'; cal.appendChild(s); });
-  for (let d = 21; d <= 34; d++) {
-    const day = d > 30 ? d - 30 : d; const s = el('span');
-    const rec = [22, 24, 28].includes(d), srv = [23, 25, 29, 31].includes(d);
-    if (d === 28) s.classList.add('today');
-    if (rec) s.classList.add('rec'); if (srv) s.classList.add('srv');
-    s.innerHTML = `${day}<i></i>`; if (!rec && !srv) s.querySelector('i').style.background = 'transparent';
-    cal.appendChild(s);
-  }
-  const orbit = $('#orbit');
-  ['audio.webm', 'transcript.md', 'whisper.cpp', 'summary', 'segments.json', 'Parakeet'].forEach((t, i, a) => {
-    const ang = (i / a.length) * Math.PI * 2, r = 43; // % of vault
-    const s = el('span', null, `<b>${t}</b>`); s.style.left = `calc(${Math.cos(ang) * r} * 1% * 4.8)`; s.style.top = `calc(${Math.sin(ang) * r} * 1% * 4.8)`;
-    orbit.appendChild(s);
-  });
-  // position orbit labels relative to the vault size
-  const vault = $('.vault');
-  const placeOrbit = () => { const R = vault.clientWidth * 0.44; $$('span', orbit).forEach((s, i, a) => { const ang = (i / a.length) * Math.PI * 2; s.style.left = Math.cos(ang) * R + 'px'; s.style.top = Math.sin(ang) * R + 'px'; }); };
-  placeOrbit(); addEventListener('resize', placeOrbit);
-  // search typing loop
-  const q = $('#searchQ'); const words = ['roadmap', 'follow-up', 'GitLab export'];
-  let wi = 0, ci = 0, dir = 1;
-  if (reduced) q.textContent = 'roadmap';
-  else setInterval(() => { const w = words[wi]; ci += dir; if (ci > w.length + 8) dir = -1; if (ci < 0) { dir = 1; ci = 0; wi = (wi + 1) % words.length; } q.textContent = w.slice(0, clamp(ci, 0, w.length)); }, 110);
-
-  /* =========================================================
-     Hero product mock — a timeline that replays the real app flow
-     ========================================================= */
-  const win = $('#win'), scaler = $('#mockScaler'), frame = $('#mockFrame'), main = $('#mockMain');
-  function fit() { const s = scaler.clientWidth / 1200; win.style.transform = `scale(${s})`; scaler.style.height = (740 * s) + 'px'; }
-  addEventListener('resize', fit); fit();
-
-  // pointer tilt
-  if (!reduced && matchMedia('(pointer: fine)').matches) {
-    const stage = $('#stage');
-    stage.addEventListener('pointermove', (e) => { const r = stage.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5; frame.style.transform = `rotateY(${x * 6}deg) rotateX(${-y * 5}deg)`; });
-    stage.addEventListener('pointerleave', () => { frame.style.transform = ''; });
-  }
-
-  const LINES = [
-    ['00:00:04', 'me', 'Okay, let’s lock the Q3 roadmap before Friday.'],
-    ['00:00:11', 'ot', 'Offline mode is done — recordings survive a crash now.'],
-    ['00:00:19', 'me', 'Great. And transcription stays fully on-device?'],
-    ['00:00:24', 'ot', 'Yep, whisper.cpp on the GPU. Nothing gets uploaded.'],
-    ['00:00:31', 'me', 'Then let’s ship the GitLab export next sprint.'],
-    ['00:00:38', 'ot', 'I’ll put a follow-up on the calendar for Thursday.'],
-  ];
-  const SUM = 'The team agreed to lock the Q3 roadmap by Friday. Crash-safe offline recording is complete, on-device GPU transcription is confirmed, and GitLab export ships next sprint.';
-  const KP = ['Q3 roadmap locked by Friday', 'GitLab export → next sprint', 'Follow-up call Thursday 14:00'];
-  const tr = $('#tr'); const trRows = LINES.map(([ts, w, t]) => { const li = el('li', null, `<span class="ts">${ts}</span><span class="who ${w}">${w === 'me' ? 'Me' : 'Others'}</span><span class="tx"></span>`); tr.appendChild(li); return { li, tx: $('.tx', li), full: t }; });
-  const kp = $('#kp'); const kpRows = KP.map((t) => { const li = el('li', null, `<span class="ck"><svg width="12" height="12"><use href="#i-check"/></svg></span>${esc(t)}`); kp.appendChild(li); return li; });
-  const lvMe = [], lvOt = []; mkBars($('#lvMe'), 16, (b) => lvMe.push(b)); mkBars($('#lvOt'), 16, (b) => lvOt.push(b));
-  const wMe = [], wOt = [];
-  const waveFill = (arr, seed) => (b, i) => { const on = noise(i * 0.35 + seed) > 0.45; b.style.height = (on ? 25 + 75 * noise(i * 1.7 + seed) : 10) + '%'; arr.push(b); };
-  mkBars($('#wMe'), 120, waveFill(wMe, 1)); mkBars($('#wOt'), 120, waveFill(wOt, 40));
-
-  const screens = $$('.screen', main), steps = $$('.stage-step'), cursor = $('#cursor');
-  const chips = { A: $('#chipA'), B: $('#chipB'), C: $('#chipC') };
-  const DUR = [4.4, 3.6, 4.8, 4.8]; const START = DUR.reduce((a, d, i) => (a.push(i ? a[i - 1] + DUR[i - 1] : 0), a), []); const TOTAL = DUR.reduce((a, b) => a + b, 0);
-  let current = -1;
-  const relPos = (node) => { const m = main.getBoundingClientRect(), r = node.getBoundingClientRect(), s = m.width / main.offsetWidth; return [(r.left - m.left + r.width * 0.55) / s, (r.top - m.top + r.height * 0.6) / s]; };
-
-  function setScene(i) {
-    if (i === current) return; current = i;
-    screens.forEach((s, j) => s.classList.toggle('on', j === i));
-    steps.forEach((s, j) => { s.classList.toggle('active', j === i); s.setAttribute('aria-selected', j === i); });
-    $$('.nav-item', win).forEach((n) => n.classList.remove('active'));
-    $('#navRec').style.display = i >= 1 ? '' : 'none';
-    $(`.nav-item[data-nav="${i === 0 ? 'new' : i === 1 ? 'rec' : 'meet'}"]`, win).classList.add('active');
-    chips.A.classList.toggle('on', i === 1); chips.B.classList.toggle('on', i === 2); chips.C.classList.toggle('on', i === 3);
-  }
-
-  function render(t) {
-    const i = START.findLastIndex((s) => t >= s); const lt = t - START[i];
-    setScene(i);
-    steps.forEach((s, j) => { $('.bar', s).style.width = (j === i ? (lt / DUR[i]) * 100 : 0) + '%'; });
-    const working = i === 2 && lt < 2.2;
-    $('#mDot').className = 'model-dot' + (working ? ' working' : ''); $('#mText').textContent = working ? 'Transcribing…' : 'Speech model ready';
-
-    if (i === 0) {
-      const title = 'Q3 Roadmap Sync'; $('#titleText').textContent = title.slice(0, Math.floor(title.length * P(lt, 0.5, 1.4)));
-      const clickT = 2.0, startT = 3.3; const sel = lt > clickT;
-      $('#dualCard').classList.toggle('selected', sel); $('#step2').classList.toggle('done', sel);
-      $('#startBtn').classList.toggle('press', Math.abs(lt - startT) < 0.1);
-      const p0 = [900, 560], p1 = relPos($('#dualCard')), p2 = relPos($('#startBtn'));
-      let x, y;
-      if (lt < clickT) { const k = eIO(P(lt, 0.8, clickT)); x = lerp(p0[0], p1[0], k); y = lerp(p0[1], p1[1], k) - Math.sin(k * Math.PI) * 40; }
-      else { const k = eIO(P(lt, clickT + 0.2, startT)); x = lerp(p1[0], p2[0], k); y = lerp(p1[1], p2[1], k) - Math.sin(k * Math.PI) * 60; }
-      const press = Math.abs(lt - clickT) < 0.08 || Math.abs(lt - startT) < 0.08;
-      cursor.style.transition = 'none'; cursor.style.opacity = lt > 0.6 && lt < 4.1 ? 1 : 0;
-      cursor.style.transform = `translate(${x}px, ${y}px) scale(${press ? 0.85 : 1})`;
-    } else cursor.style.opacity = 0;
-
-    if (i === 1) {
-      const secs = Math.floor(eIO(P(lt, 0.2, DUR[1] - 0.3)) * (47 * 60 + 12));
-      $('#timer').textContent = `00:${pad(Math.floor(secs / 60))}:${pad(secs % 60)}`;
-      $('#chunk').textContent = `Saved to disk · chunk ${String(Math.max(1, Math.floor(secs / 5))).padStart(6, '0')}.webm`;
-      const tm = noise(t * 1.3) > 0.4 ? 1 : 0.25, to = noise(t * 1.3 + 20) > 0.45 ? 1 : 0.25;
-      lvMe.forEach((b, j) => { b.style.height = (4 + 32 * (1 - Math.abs(j - 7.5) / 8.5) * noise(t * 9 + j * 0.7) * tm) + 'px'; });
-      lvOt.forEach((b, j) => { b.style.height = (4 + 32 * (1 - Math.abs(j - 7.5) / 8.5) * noise(t * 9 + j * 0.7 + 50) * to) + 'px'; });
-      $('#stopBtn').classList.toggle('press', lt > DUR[1] - 0.25);
-    }
-
-    if (i === 2) {
-      const prog = eIO(P(lt, 0.2, 2.0)); const done = prog >= 1;
-      $('#pct').textContent = Math.round(prog * 100) + '%'; $('#prog').style.width = prog * 100 + '%';
-      $('#stageTxt').textContent = prog < 0.08 ? 'Decoding audio…' : prog < 0.97 ? 'Transcribing…' : 'Saving transcript…';
-      $('#stPill').className = 'pill ' + (done ? 'pill-completed' : 'pill-processing'); $('#stPill').textContent = done ? 'Completed' : 'Transcribing';
-      const cut = Math.floor(prog * 120); wMe.forEach((b, j) => b.classList.toggle('on', j < cut)); wOt.forEach((b, j) => b.classList.toggle('on', j < cut));
-      $('#loaderCard').style.display = lt > 2.3 ? 'none' : '';
-      trRows.forEach((r, j) => { const st = 0.7 + j * 0.42; r.li.classList.toggle('in', lt > st); r.li.classList.toggle('hot', lt > st && lt < st + 0.9); r.tx.textContent = r.full.slice(0, Math.floor(r.full.length * P(lt, st, st + 0.6))); });
-    }
-
-    if (i === 3) {
-      const n = Math.floor(SUM.length * eIO(P(lt, 0.3, 2.0)));
-      $('#sumText').innerHTML = esc(SUM.slice(0, n)) + (n < SUM.length ? '<span class="caret"></span>' : '');
-      kpRows.forEach((li, j) => li.classList.toggle('in', lt > 1.7 + j * 0.25));
-      $('#gitBtn').style.borderColor = lt > 3.0 ? '#4f46e5' : ''; $('#gitBtn').classList.toggle('press', Math.abs(lt - 3.0) < 0.1);
-    }
-  }
-
-  let t0 = performance.now(), offset = 0, visible = true, raf = 0;
-  function loop(now) { render(((now - t0) / 1000 + offset) % TOTAL); raf = requestAnimationFrame(loop); }
-  steps.forEach((s, j) => s.addEventListener('click', () => { offset = START[j]; t0 = performance.now(); if (reduced) render(START[j] + DUR[j] - 0.01); }));
-  if (reduced) { render(START[3] + DUR[3] - 0.01); }
-  else {
-    new IntersectionObserver(([e]) => { visible = e.isIntersecting; cancelAnimationFrame(raf); if (visible) { t0 = performance.now() - ((performance.now() - t0) % (TOTAL * 1000)); raf = requestAnimationFrame(loop); } }).observe(scaler);
-    document.addEventListener('visibilitychange', () => { if (document.hidden) cancelAnimationFrame(raf); else if (visible) raf = requestAnimationFrame(loop); });
-  }
 
   /* =========================================================
      Downloads — live GitHub Releases, manifest fallback
@@ -324,11 +134,11 @@
           <svg width="20" height="20"><use href="#i-dl"/></svg>${pending ? 'Release in preparation' : `Download ${a.label === 'Installer' ? 'installer' : a.label}`}
           <span class="sub">${esc(a.ext)}${a.size ? ' · ' + fmtSize(a.size) : ''}</span></a>
         <div class="fname">${esc(a.name)}</div>` : '<p class="req">No build for this platform yet.</p>'}
-      <ol class="install-steps">${steps.map((s) => `<li><div>${typeof s === 'string' ? s : `${s.note ? `<span style="color:var(--muted)">${esc(s.note)}</span>` : ''}${codeBlock(s.code)}`}</div></li>`).join('')}</ol>`;
-    const pb = $('#primaryDl [data-pending]'); if (pb) pb.addEventListener('click', (e) => { e.preventDefault(); $('.source-grid2').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' }); });
+      <ol class="install-steps">${steps.map((s) => `<li><div>${typeof s === 'string' ? s : `${s.note ? `${esc(s.note)}` : ''}${codeBlock(s.code)}`}</div></li>`).join('')}</ol>`;
+    const pb = $('#primaryDl [data-pending]'); if (pb) pb.addEventListener('click', (e) => { e.preventDefault(); $('#build').scrollIntoView({ block: 'start' }); });
 
     const list = rel.assets.filter((x) => x.os === os);
-    $('#binTable').innerHTML = `<h4><span>${meta.name} binaries · v${esc(rel.version)}</span><span class="mono" style="letter-spacing:0">${list.length} files</span></h4>` + list.map((x) => `
+    $('#binTable').innerHTML = `<h4><span>${meta.name} binaries · v${esc(rel.version)}</span><span>${list.length} files</span></h4>` + list.map((x) => `
       <div class="bin">
         <div>
           <div class="nm"><strong>${esc(x.label)}</strong><span class="ext">.${esc(x.ext)}</span><span class="arch">${x.archLabel}</span>${a && x.name === a.name ? '<span class="rec">Recommended</span>' : ''}</div>
@@ -346,7 +156,7 @@
     $('#releases').innerHTML = state.rels.map((r, i) => {
       const assets = r.assets.filter((a) => f === 'all' || a.os === f).sort((a, b) => 'mac win linux'.indexOf(a.os) - 'mac win linux'.indexOf(b.os));
       return `<details class="release" ${i === 0 ? 'open' : ''}>
-        <summary><svg class="chev" width="16" height="16"><use href="#i-chev"/></svg><span class="v">v${esc(r.version)}</span>${i === 0 ? '<span class="latest">Latest</span>' : ''}${r.prerelease ? '<span class="pre">Pre-release</span>' : ''}${r.pending ? '<span class="pre">In preparation</span>' : ''}<span class="date">${fmtDate(r.date)}</span><span class="count">${assets.length} binaries</span></summary>
+        <summary><span class="v">v${esc(r.version)}</span>${i === 0 ? '<span class="latest">Latest</span>' : ''}${r.prerelease ? '<span class="pre">Pre-release</span>' : ''}${r.pending ? '<span class="pre">In preparation</span>' : ''}<span class="date">${fmtDate(r.date)}</span><span class="count">${assets.length} binaries</span></summary>
         <table class="matrix"><thead><tr><th>Platform</th><th>Package</th><th>Arch</th><th>File</th><th>Size</th><th></th></tr></thead><tbody>
         ${assets.map((a) => `<tr><td>${osIcon(a.os)}</td><td>${esc(a.label)}</td><td class="s">${a.archLabel}</td><td class="f">${esc(a.name)}</td><td class="s">${fmtSize(a.size) || '—'}</td>
           <td class="a">${r.pending ? '<span class="btn btn-sm" aria-disabled="true">Soon</span>' : `<a class="btn btn-sm" href="${a.url}"><svg width="14" height="14"><use href="#i-dl"/></svg>Get</a>`}</td></tr>`).join('')}
@@ -365,7 +175,7 @@
     if (state.source === 'pending') {
       note.hidden = false;
       note.innerHTML = `<svg width="18" height="18"><use href="#i-warn"/></svg><span>The first public build is being prepared. The list below shows the exact binaries each release ships. Until it's live, <a href="#build" id="noteBuild">build from source</a> or <a href="https://github.com/${REPO}/releases" target="_blank" rel="noopener">watch releases on GitHub</a>.</span>`;
-      $('#noteBuild').addEventListener('click', (e) => { e.preventDefault(); $('.source-grid2').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' }); });
+      $('#noteBuild').addEventListener('click', (e) => { e.preventDefault(); $('#build').scrollIntoView({ block: 'start' }); });
     } else if (state.source === 'offline') {
       note.hidden = false;
       note.innerHTML = `<svg width="18" height="18"><use href="#i-warn"/></svg><span>Couldn't reach GitHub for live release data — showing the bundled release list. <a href="https://github.com/${REPO}/releases" target="_blank" rel="noopener">Open GitHub Releases</a>.</span>`;
