@@ -66,8 +66,8 @@ a:visited { color: var(--link); }
 
 /* ============ page-frame ============ */
 .page-frame { background: var(--frame-ink); padding: var(--frame); min-height: 100vh; }
-/* fixed 760px column; on wide screens it sits centered with white gutters inside the frame */
-.page { background: var(--canvas); min-height: calc(100vh - 2 * var(--frame)); padding: 0 max(var(--lg), calc((100% - 728px) / 2)) var(--lg); }
+/* fluid column up to 1600px, so 16:9 desktops use the width; past that it sits centered with white gutters inside the frame */
+.page { background: var(--canvas); min-height: calc(100vh - 2 * var(--frame)); padding: 0 max(var(--lg), calc((100% - 1568px) / 2)) var(--lg); }
 
 /* ============ top-banner ============ */
 .top-banner {
@@ -103,7 +103,10 @@ a:visited { color: var(--link); }
 .phone-callout:visited { color: var(--primary); }
 
 /* ============ home: left rail + right column ============ */
-.home { display: grid; grid-template-columns: 28% 1fr; gap: var(--lg); align-items: start; }
+/* the rail runs beside every section and stays in view while scrolling */
+.home { display: grid; grid-template-columns: clamp(220px, 24%, 300px) minmax(0, 1fr); gap: var(--lg) var(--xxl); align-items: start; }
+.rail { position: sticky; top: var(--lg); }
+@media (max-height: 640px) { .rail { position: static; } }
 
 .icon-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: var(--hairline); border-left: var(--hairline); }
 .icon-grid a, .icon-label-nav a {
@@ -344,9 +347,27 @@ button { font: inherit; color: inherit; }
 .toast.on { visibility: visible; }
 
 /* ============ responsive ============ */
+/* wide (16:9) desktops: hero copy beside the reel, features two-up, bigger eyebrows */
+@media (min-width: 1200px) {
+  .hero { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: var(--xxl); align-items: center; padding: var(--lg) 0; }
+  .hero .intro { padding: 0; }
+  .hero .intro h1 { font-size: 32px; }
+  .hero .product-photo { margin: 0; }
+  .eyebrow { font-size: 48px; }
+  #features .ribbons { grid-template-columns: 1fr 1fr; gap: var(--xxl) var(--lg); }
+  #features .ribbon { display: flex; flex-direction: column; }
+  #features .ribbon-body { flex: 1; }
+}
+/* mid widths: the right column is narrower now that the rail sits beside it */
+@media (max-width: 1024px) {
+  .ribbons-3, .dl-main, .terminals { grid-template-columns: 1fr; }
+  .primary-dl { border-right: 0; border-bottom: var(--hairline); }
+  .terminal + .terminal { border-left: 0; border-top: var(--hairline); }
+}
 @media (max-width: 768px) {
   :root { --frame: 4px; }
-  .home { grid-template-columns: 1fr; }
+  .home { grid-template-columns: minmax(0, 1fr); }
+  .rail { position: static; }
   .icon-grid { grid-template-columns: 1fr; }
   .icon-grid a { flex-direction: row; justify-content: flex-start; gap: var(--md); min-height: 44px; }
   .banner-head { font-size: 14px; }

@@ -431,6 +431,7 @@ All three families are operating-system defaults on every consumer OS shipped in
 ### Grid & Container
 - Fixed-width table layout pinned around 760 px wide — the de facto 1996 standard targeting 800×600 monitors with a small scrollbar gutter.
 - Two-column outer structure: left rail (~28 %) carries the homepage icon-link grid + CTA red panel; right column (~72 %) carries the product ribbon stack.
+- **This site's adaptation for 16:9 screens**: the column is fluid up to 1568 px of content (centered beyond that). The left rail (220–300 px) runs beside every section and is sticky, so the icon nav and red CTA stay in view; at ≥ 1200 px the hero puts the intro beside the showreel and feature ribbon-cards go two-up.
 - No grid system in the modern sense — every section is its own `<table>` declaration with hard-coded column widths.
 
 ### Whitespace Philosophy
@@ -442,7 +443,7 @@ Tight by modern standards. Catalog density wins over editorial breath — every 
 | Name | Width | Key Changes |
 |---|---|---|
 | Period default | 800 × 600 | Fixed 760 px layout, designed for the era's standard monitor |
-| Modern desktop | 1280+ px | Layout sits centered with generous side gutters — emulates "magazine spread in the middle of the screen" |
+| Modern desktop | 1200+ px | (This site) Fluid width up to 1568 px, sticky left rail beside all sections, two-up feature cards, hero copy beside the reel |
 | Tablet | 768 px | Black frame compresses to 4 px; ribbon-cards stack at full width inside |
 | Mobile | < 480 px | Black frame to 2 px; two-column structure collapses to single column; left rail icon grid stacks above the right-column product stack |
 
