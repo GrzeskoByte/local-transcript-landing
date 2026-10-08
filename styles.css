@@ -66,8 +66,8 @@ a:visited { color: var(--link); }
 
 /* ============ page-frame ============ */
 .page-frame { background: var(--frame-ink); padding: var(--frame); min-height: 100vh; }
-/* fixed 760px column; on wide screens it sits centered with white gutters inside the frame */
-.page { background: var(--canvas); min-height: calc(100vh - 2 * var(--frame)); padding: 0 max(var(--lg), calc((100% - 728px) / 2)) var(--lg); }
+/* fluid column up to ~1900px, so 16:9 and ultrawide desktops use the width; past that it sits centered with white gutters inside the frame */
+.page { background: var(--canvas); min-height: calc(100vh - 2 * var(--frame)); padding: 0 max(var(--lg), calc((100% - 1856px) / 2)) var(--lg); }
 
 /* ============ top-banner ============ */
 .top-banner {
@@ -103,7 +103,12 @@ a:visited { color: var(--link); }
 .phone-callout:visited { color: var(--primary); }
 
 /* ============ home: left rail + right column ============ */
-.home { display: grid; grid-template-columns: 28% 1fr; gap: var(--lg); align-items: start; }
+/* the rail runs beside every section and stays in view while scrolling */
+.home { display: grid; grid-template-columns: clamp(220px, 24%, 300px) minmax(0, 1fr); gap: var(--lg) var(--xxl); align-items: start; }
+.rail { position: sticky; top: var(--lg); z-index: 20; }
+@media (max-height: 640px) and (min-width: 1025px) { .rail { position: static; } }
+/* the right column is a size container: its parts adapt to the room they get, not to the viewport */
+.col { container: col / inline-size; }
 
 .icon-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: var(--hairline); border-left: var(--hairline); }
 .icon-grid a, .icon-label-nav a {
@@ -113,6 +118,7 @@ a:visited { color: var(--link); }
   padding: var(--sm);
 }
 .icon-grid a { border-right: var(--hairline); border-bottom: var(--hairline); min-height: 64px; }
+.icon-grid a[aria-current="true"] { background: var(--yellow-sticker); }
 .icon-grid a:visited, .icon-label-nav a:visited { color: var(--ink); }
 
 .cta-block-red {
@@ -125,7 +131,7 @@ a:visited { color: var(--link); }
 
 /* ============ section eyebrow blocks ============ */
 .eyebrow {
-  color: var(--ink); font: 900 36px/1 var(--f-display); text-transform: uppercase;
+  color: var(--ink); font: 900 clamp(26px, 1.6vw + 18px, 52px)/1 var(--f-display); text-transform: uppercase;
   padding: var(--xxl) var(--lg); overflow-wrap: anywhere;
 }
 .eyebrow-olive { background: var(--tint-olive); }
@@ -133,7 +139,7 @@ a:visited { color: var(--link); }
 
 /* ============ intro ============ */
 .intro { padding: var(--lg) 0; }
-.intro h1 { font: 900 24px/1.05 var(--f-display); margin-bottom: var(--md); }
+.intro h1 { font: 900 clamp(22px, 1vw + 17px, 34px)/1.05 var(--f-display); margin-bottom: var(--md); }
 .cta-row { display: flex; flex-wrap: wrap; gap: var(--sm); margin: var(--md) 0; }
 .checks { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--xs) var(--lg); font-size: 12px; }
 .checks li::before { content: "■ "; }
@@ -184,14 +190,19 @@ button { font: inherit; color: inherit; }
 }
 
 /* ============ sections ============ */
-.section { padding-top: var(--section); }
+.section { padding-top: var(--section); scroll-margin-top: var(--md); }
 .section-lede { margin: var(--lg) 0 var(--section-sm); }
 .section-lede b { font-family: var(--f-sans); text-transform: uppercase; font-size: 14px; display: block; margin-bottom: var(--xs); }
 
 /* ============ ribbon cards ============ */
 .ribbons { display: grid; gap: var(--lg); }
-.ribbons-3 { grid-template-columns: repeat(3, 1fr); margin-top: var(--lg); }
-.ribbon { position: relative; border: var(--hairline); }
+.ribbons-3 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); margin-top: var(--lg); }
+/* features: two cards per row once each can be 460px+, otherwise one; never three (10 cards would leave an orphan) */
+#features .ribbons { grid-template-columns: repeat(auto-fill, minmax(min(100%, max(460px, calc((100% - var(--lg)) / 2))), 1fr)); gap: var(--xxl) var(--lg); }
+#features .ribbon { display: flex; flex-direction: column; }
+#features .ribbon-body { flex: 1; }
+/* each card is its own size container, so its notch stacks when the card (not the screen) gets narrow */
+.ribbon { position: relative; border: var(--hairline); container-type: inline-size; }
 .ribbon-title {
   background: var(--canvas); color: var(--ink); border-bottom: var(--hairline);
   font: 700 14px/1.2 var(--f-sans); text-transform: uppercase;
@@ -213,7 +224,7 @@ button { font: inherit; color: inherit; }
 
 /* photo notch: right ~25%, hanging above and below the body bar */
 .notch {
-  flex: 0 0 25%; min-width: 160px;
+  flex: 0 0 25%; min-width: max-content; max-width: 55%;
   margin: calc(-1 * var(--xl)) 0;
   background: var(--canvas); border: var(--hairline); box-shadow: var(--bevel);
   padding: var(--s) var(--sm);
@@ -344,17 +355,45 @@ button { font: inherit; color: inherit; }
 .toast.on { visibility: visible; }
 
 /* ============ responsive ============ */
-@media (max-width: 768px) {
-  :root { --frame: 4px; }
-  .home { grid-template-columns: 1fr; }
-  .icon-grid { grid-template-columns: 1fr; }
-  .icon-grid a { flex-direction: row; justify-content: flex-start; gap: var(--md); min-height: 44px; }
-  .banner-head { font-size: 14px; }
-  .ribbons-3, .dl-main, .terminals { grid-template-columns: 1fr; }
+/* component layouts follow the width of the right column */
+@container col (min-width: 880px) {
+  .hero { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: var(--xxl); align-items: center; padding: var(--lg) 0; }
+  .hero .intro { padding: 0; }
+  .hero .product-photo { margin: 0; }
+}
+@container col (max-width: 700px) {
+  .dl-main, .terminals { grid-template-columns: 1fr; }
   .primary-dl { border-right: 0; border-bottom: var(--hairline); }
   .terminal + .terminal { border-left: 0; border-top: var(--hairline); }
+}
+@container (max-width: 600px) {
   .ribbon-body { flex-direction: column; align-items: stretch; }
-  .notch { order: -1; flex-basis: auto; min-width: 0; margin: 0; }
+  .notch { order: -1; flex-basis: auto; min-width: 0; max-width: none; margin: 0; }
+}
+
+/* tablets and phones: the rail turns into a sticky, horizontally scrolling nav strip above the content */
+@media (max-width: 1024px) {
+  .home { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .rail {
+    position: sticky; top: 0;
+    margin: 0 calc(-1 * var(--lg)) var(--sm);
+    background: var(--canvas); border-bottom: var(--hairline);
+  }
+  .icon-grid {
+    display: flex; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain;
+    border: 0; border-top: var(--hairline);
+  }
+  .icon-grid::-webkit-scrollbar { display: none; }
+  .icon-grid a { flex: 1 0 auto; min-width: 84px; min-height: 56px; border-bottom: 0; padding: var(--s) var(--sm); font-size: 11px; white-space: nowrap; }
+  .icon-grid a:last-child { border-right: 0; }
+  .icon-grid svg { width: 20px; height: 20px; }
+  .top-banner { margin-bottom: 0; }
+  .cta-block-red { display: none; }
+  .section { scroll-margin-top: 72px; }
+}
+@media (max-width: 768px) {
+  :root { --frame: 4px; }
+  .banner-head { font-size: 14px; }
   .ribbon .new-burst { right: var(--sm); }
   .btn, .os-tab, .filter button, .icon-label-nav a { min-height: 44px; }
 }
@@ -362,17 +401,21 @@ button { font: inherit; color: inherit; }
   .top-banner { flex-wrap: wrap; }
   .banner-copy { flex-basis: 100%; order: 2; }
   .banner-right { margin-left: auto; }
+  .dl-top { flex-direction: column; align-items: stretch; }
 }
 @media (max-width: 480px) {
   :root { --frame: 2px; }
   .page { padding: 0 var(--m) var(--m); }
-  .top-banner { margin: 0 calc(-1 * var(--m)) var(--m); }
-  .eyebrow { font-size: 26px; padding: var(--lg) var(--md); }
+  .top-banner { margin: 0 calc(-1 * var(--m)) 0; }
+  .rail { margin: 0 calc(-1 * var(--m)) var(--sm); }
+  .banner-sub { display: none; }
+  .eyebrow { padding: var(--lg) var(--md); }
   .os-tabs { width: 100%; }
   .os-tab { flex: 1; justify-content: center; padding: var(--s) var(--sm); }
   .zeros b { font-size: 26px; }
   .data-table th, .data-table td { padding: var(--s) var(--sm); }
-  .cert-seal { left: -4px; }
+  .cert-seal { left: -4px; width: 56px; height: 56px; font-size: 10px; }
+  .cta-row .btn { flex: 1 1 100%; }
 }
 
 /* ============ fixes ============ */
