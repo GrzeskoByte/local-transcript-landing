@@ -219,6 +219,34 @@
   document.addEventListener('click', trackDownload);
   document.addEventListener('auxclick', trackDownload);
 
+  // Mark the rail link for the section in view; on narrow screens the rail is a
+  // horizontal strip, so also scroll that link into the strip's view.
+  const navLinks = $$('.icon-grid a[href^="#"]');
+  const navStrip = $('.icon-grid');
+  let spyQueued = false, current = null;
+  function spy() {
+    spyQueued = false;
+    const line = innerHeight * 0.3;
+    let active = null, best = -Infinity;
+    for (const a of navLinks) {
+      const target = document.getElementById(a.hash.slice(1)); if (!target) continue;
+      const top = target.getBoundingClientRect().top;
+      if (top <= line && top > best) { best = top; active = a; }
+    }
+    if (active === current) return;
+    current?.removeAttribute('aria-current');
+    current = active;
+    if (!active) return;
+    active.setAttribute('aria-current', 'true');
+    if (navStrip.scrollWidth > navStrip.clientWidth) {
+      navStrip.scrollTo({ left: active.offsetLeft - (navStrip.clientWidth - active.offsetWidth) / 2 });
+    }
+  }
+  const queueSpy = () => { if (!spyQueued) { spyQueued = true; requestAnimationFrame(spy); } };
+  addEventListener('scroll', queueSpy, { passive: true });
+  addEventListener('resize', queueSpy);
+  spy();
+
   // Paint a loading state, then the live list from GitHub. Nothing is stored
   // on the visitor's device (see privacy.html).
   const paint = () => { renderStatus(); renderPlatform(); renderHistory(); };
