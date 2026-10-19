@@ -271,6 +271,9 @@ button { font: inherit; color: inherit; }
 
 .dl-note { display: flex; gap: var(--sm); align-items: flex-start; background: var(--yellow-sticker); border: var(--hairline); padding: var(--sm) var(--md); font-size: 12px; margin: 0 0 var(--lg); }
 .dl-note[hidden] { display: none; }
+.dl-counter { margin-top: var(--section-sm); }
+.dl-counter[hidden] { display: none; }
+.dl-count { font: 900 40px/1 var(--f-display); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 .dl-main { display: grid; grid-template-columns: 1fr 1fr; border: var(--hairline); }
 .primary-dl { padding: var(--lg); border-right: var(--hairline); }
