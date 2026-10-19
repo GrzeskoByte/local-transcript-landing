@@ -60,6 +60,12 @@ Two sources, because not every download goes through this site:
       curl -s 'https://api.github.com/repos/GrzeskoByte/local-transcript/releases?per_page=100' \
         | jq -r '.[] | .assets[] | "\(.download_count)\t\(.name)"' | sort -rn
 
+  The **Download counter** in the download section shows this live: the sum of
+  `download_count` over every installer (`.dmg`, `.exe`, `.msi`, `.AppImage`,
+  `.deb`, `.rpm`) of every release. Updater bundles and metadata (`latest.json`,
+  `.sig`) are left out, so update checks don't inflate it. It is hidden if
+  GitHub can't be reached.
+
 Neither adds cookies or device storage, and both are disclosed in `privacy.html`
 §2.2–2.3. The desktop app itself stays telemetry-free.
 

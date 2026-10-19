@@ -66,7 +66,7 @@
       entry.notes.push({ label: { windows: 'Windows', macos: 'macOS', ubuntu: 'Ubuntu' }[m[2]] ?? 'All platforms', url: r.html_url });
       for (const a of r.assets) {
         const c = classify(a.name);
-        if (c) entry.assets.push({ name: a.name, size: a.size, url: a.browser_download_url, sha: (a.digest || '').replace(/^sha256:/, ''), ...c });
+        if (c) entry.assets.push({ name: a.name, size: a.size, url: a.browser_download_url, downloads: a.download_count || 0, sha: (a.digest || '').replace(/^sha256:/, ''), ...c });
       }
       byVersion.set(version, entry);
     }
@@ -149,6 +149,16 @@
       </div>`).join('');
     $('#shaCmd').textContent = os === 'win' ? 'certutil -hashfile <file> SHA256' : os === 'mac' ? 'shasum -a 256 <file>' : 'sha256sum <file>';
     $('#backendHint').innerHTML = os === 'mac' ? 'whisper.cpp ships inside the app, GPU-accelerated with Metal. The speech model downloads once, on your first transcription.' : 'whisper.cpp ships inside the app. The speech model downloads once (~550 MB), on your first transcription.';
+  }
+
+  // Public total from GitHub's per-file download_count, summed over every
+  // installer of every release (updater bundles and metadata are not counted).
+  function renderCounter() {
+    const box = $('#dlCounter');
+    if (!state.rels.length) { box.hidden = true; return; }
+    const total = state.rels.reduce((n, r) => n + r.assets.reduce((m, a) => m + a.downloads, 0), 0);
+    $('#dlCount').textContent = total.toLocaleString();
+    box.hidden = false;
   }
 
   const osIcon = (os) => `<span class="plat"><svg><use href="#${OS_META[os].icon}"/></svg>${OS_META[os].name}</span>`;
@@ -249,7 +259,7 @@
 
   // Paint a loading state, then the live list from GitHub. Nothing is stored
   // on the visitor's device (see privacy.html).
-  const paint = () => { renderStatus(); renderPlatform(); renderHistory(); };
+  const paint = () => { renderStatus(); renderPlatform(); renderHistory(); renderCounter(); };
   paint();
   Promise.all([loadReleases(), archReady])
     .then(([rels]) => { state.rels = rels; state.source = 'live'; })
