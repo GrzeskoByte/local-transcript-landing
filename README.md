@@ -1,5 +1,7 @@
 # Local Transcriber — landing page
 
+Live at **https://transcript.sierock.com** (Vercel).
+
 Static site, no build step, no dependencies: `index.html` + `styles.css` + `app.js` + `assets/`.
 App repo: [GrzeskoByte/local-transcript](https://github.com/GrzeskoByte/local-transcript).
 

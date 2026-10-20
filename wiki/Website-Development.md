@@ -55,7 +55,7 @@ Nothing is stored in cookies, `localStorage` or anywhere else on the visitor's d
 
 ## Deploy
 
-Any static host works: **Vercel** (production, uses `vercel.json`), GitHub Pages, Netlify or Cloudflare Pages. Serve the folder as it is.
+Production is **https://transcript.sierock.com**, served by Vercel (uses `vercel.json`). Any other static host works too (GitHub Pages, Netlify, Cloudflare Pages): serve the folder as it is.
 
 `vercel.json`:
 

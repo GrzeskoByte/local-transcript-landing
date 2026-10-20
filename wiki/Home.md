@@ -9,7 +9,7 @@ This wiki covers two things:
 | | Who it's for | Start here |
 | --- | --- | --- |
 | 📘 **User manual** | Anyone using the desktop app | [[Installation]] → [[Getting Started]] |
-| 🌐 **Website guide** | Visitors and maintainers of the landing page ([this repository](https://github.com/GrzeskoByte/local-transcript-landing)) | [[Website Tour]] → [[Website Development]] |
+| 🌐 **Website guide** | Visitors and maintainers of the landing page ([transcript.sierock.com](https://transcript.sierock.com), source in [this repository](https://github.com/GrzeskoByte/local-transcript-landing)) | [[Website Tour]] → [[Website Development]] |
 
 The app's source code lives in [GrzeskoByte/local-transcript](https://github.com/GrzeskoByte/local-transcript). This repository holds only the static download/landing site.
 

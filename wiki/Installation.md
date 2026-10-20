@@ -1,6 +1,6 @@
 # Installation
 
-Local Transcriber is free and needs no account. Download it from the website's **Download** section or straight from [GitHub Releases](https://github.com/GrzeskoByte/local-transcript/releases).
+Local Transcriber is free and needs no account. Download it from the **Download** section of [transcript.sierock.com](https://transcript.sierock.com/#download) or straight from [GitHub Releases](https://github.com/GrzeskoByte/local-transcript/releases).
 
 ## System requirements
 
