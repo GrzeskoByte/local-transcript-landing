@@ -11,6 +11,13 @@ App repo: [GrzeskoByte/local-transcript](https://github.com/GrzeskoByte/local-tr
 
 Visual design follows `DESIGN.md` (catalog-era 1996 style, system fonts only).
 
+## Wiki
+
+`wiki/` holds the GitHub wiki: the app's user manual and this site's docs, with
+screenshots in `wiki/images/`. `.github/workflows/wiki-sync.yml` publishes it to the
+repo's Wiki on every push to `main` that touches `wiki/` (create any first page in the
+Wiki tab once so GitHub creates the wiki repo). See `wiki/Contributing-to-the-Wiki.md`.
+
 ## Downloads / binaries
 
 The download section reads the app repo's **GitHub Releases** live

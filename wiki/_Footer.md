@@ -1,0 +1,1 @@
+Local Transcriber · MIT License · [App source](https://github.com/GrzeskoByte/local-transcript) · [Website source](https://github.com/GrzeskoByte/local-transcript-landing) · [Releases](https://github.com/GrzeskoByte/local-transcript/releases) · Edit these pages in the `wiki/` folder of the website repository, see [[Contributing to the Wiki]].
