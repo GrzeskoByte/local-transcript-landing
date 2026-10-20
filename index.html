@@ -6,10 +6,10 @@
   <title>Local Transcriber — private, on-device meeting transcription</title>
   <meta name="description" content="Record any meeting, transcribe it with whisper.cpp or Parakeet on your own GPU, and summarize it with a local LLM. Your audio never leaves your machine. Free for macOS, Windows and Linux.">
   <meta name="theme-color" content="#000000">
-  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/logo.svg?v=2" type="image/svg+xml">
   <meta property="og:title" content="Local Transcriber — every meeting, every word, on your device">
   <meta property="og:description" content="Private desktop meeting recorder with native GPU transcription and local AI summaries. macOS · Windows · Linux.">
-  <meta property="og:image" content="assets/og-image.jpg">
+  <meta property="og:image" content="assets/og-image.jpg?v=2">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="styles.css">
@@ -33,6 +33,7 @@
   <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11 12 3l9 8M5 9.5V21h5v-6h4v6h5V9.5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
   <symbol id="i-steps" viewBox="0 0 24 24"><path d="M3 5h4v4H3zM10 7h11M3 15h4v4H3zM10 17h11" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
   <symbol id="i-term" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" fill="none" stroke="currentColor" stroke-width="2"/><path d="m6 9 3 3-3 3M12 15h6" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="miter"/></symbol>
   <symbol id="i-box" viewBox="0 0 24 24"><path d="M3 7 12 3l9 4v10l-9 4-9-4zM3 7l9 4 9-4M12 11v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="miter"/></symbol>
 </svg>
 
@@ -42,7 +43,7 @@
 
 <!-- ============ TOP BANNER ============ -->
 <header class="top-banner">
-  <a href="#top" class="logo"><img src="assets/logo.svg" alt="" width="40" height="40"><span>Local<br>Transcriber</span></a>
+  <a href="#top" class="logo"><img src="assets/logo.svg?v=2" alt="" width="40" height="40"><span>Local<br>Transcriber</span></a>
   <div class="banner-copy">
     <p class="banner-head">Record your meetings. Transcribe them. Offline.</p>
     <p class="banner-sub">Private, on-device meeting transcription for macOS, Windows &amp; Linux.</p>
@@ -64,6 +65,7 @@
       <a href="#releases-all"><svg width="24" height="24"><use href="#i-box"/></svg>All versions</a>
       <a href="#build"><svg width="24" height="24"><use href="#i-term"/></svg>Build it</a>
       <a href="#faq"><svg width="24" height="24"><use href="#i-q"/></svg>FAQ</a>
+      <a href="https://github.com/GrzeskoByte/local-transcript-landing/wiki" target="_blank" rel="noopener"><svg width="24" height="24"><use href="#i-book"/></svg>Docs</a>
       <a href="https://github.com/GrzeskoByte/local-transcript" target="_blank" rel="noopener"><svg width="24" height="24"><use href="#i-gh"/></svg>GitHub</a>
     </nav>
 
@@ -348,6 +350,7 @@ $ sudo voxtype setup gpu --enable
     <details><summary>macOS says the app can't be opened — what now?</summary><p>Early builds may not be notarized yet. Right-click the app in Applications and choose <b>Open</b>, or run <code>xattr -dr com.apple.quarantine "/Applications/Local Transcribe.app"</code>.</p></details>
     <details><summary>Is it really free?</summary><p>Yes. Local Transcriber is open source under the MIT license. No tiers, no trial, no account.</p></details>
   </div>
+  <p class="faq-more">More questions? The <a href="https://github.com/GrzeskoByte/local-transcript-landing/wiki" target="_blank" rel="noopener">documentation</a> has a full user manual — installation, recording, transcription, integrations and troubleshooting, with screenshots.</p>
 </section>
 
   </main>
@@ -359,6 +362,7 @@ $ sudo voxtype setup gpu --enable
     <a href="#top"><svg width="24" height="24"><use href="#i-home"/></svg>Home</a>
     <a href="#download"><svg width="24" height="24"><use href="#i-dl"/></svg>Download</a>
     <a href="https://github.com/GrzeskoByte/local-transcript/releases" target="_blank" rel="noopener"><svg width="24" height="24"><use href="#i-box"/></svg>Releases</a>
+    <a href="https://github.com/GrzeskoByte/local-transcript-landing/wiki" target="_blank" rel="noopener"><svg width="24" height="24"><use href="#i-book"/></svg>Docs</a>
     <a href="https://github.com/GrzeskoByte/local-transcript" target="_blank" rel="noopener"><svg width="24" height="24"><use href="#i-gh"/></svg>Source</a>
   </nav>
   <p class="legal"><a href="https://github.com/GrzeskoByte/local-transcript/blob/main/LICENSE" target="_blank" rel="noopener">Copyright</a> © 2026 GrzeskoByte. <a href="https://github.com/GrzeskoByte/local-transcript/blob/main/LICENSE" target="_blank" rel="noopener">(MIT License)</a> · <a href="/privacy">Privacy</a> · <a href="/legal">Legal notice</a></p>

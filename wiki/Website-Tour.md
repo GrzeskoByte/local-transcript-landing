@@ -10,8 +10,8 @@ A section-by-section guide to the Local Transcriber landing page. It's a single 
 
 | Element | What it does |
 | --- | --- |
-| **Top banner** | Logo, tagline, the yellow **Download it FREE** sticker and the current version (**v0.1.20 · NO ACCOUNT**). The version comes live from GitHub. |
-| **Navigation rail** | Download · How it works · Features · Privacy · All versions · Build it · FAQ · GitHub. It stays in view on desktop and highlights the section you're reading. On phones it becomes a horizontal strip. |
+| **Top banner** | Logo (a flat white tile with a black waveform, the same mark as the app's own header), tagline, the yellow **Download it FREE** sticker and the current version (**v0.1.20 · NO ACCOUNT**). The version comes live from GitHub. |
+| **Navigation rail** | Download · How it works · Features · Privacy · All versions · Build it · FAQ · **Docs** (this wiki) · GitHub. It stays in view on desktop and highlights the section you're reading. On phones it becomes a horizontal strip. |
 | **Red CTA block** | A short pitch and **Download for <your OS>** |
 | **Hero** | Headline, **Download for <your OS>** (links straight to the recommended installer) and **Watch the 15s tour** |
 | **Showreel** | A 15-second video of the record → transcribe → summarize workflow. Press **Play the 15s tour**. |
@@ -78,13 +78,13 @@ A yellow notice appears, and every button links to the GitHub Releases page inst
 
 ![FAQ](images/landing-faq.png)
 
-Ten questions that expand when clicked. The same answers are in [[FAQ]].
+Ten questions that expand when clicked, followed by a link to this documentation. The same answers are in [[FAQ]].
 
 ## Footer
 
 ![Footer](images/landing-footer.png)
 
-Home · Download · Releases · Source, plus copyright, the MIT license, **Privacy** and **Legal notice**.
+Home · Download · Releases · Docs · Source, plus copyright, the MIT license, **Privacy** and **Legal notice**.
 
 ## On a phone
 

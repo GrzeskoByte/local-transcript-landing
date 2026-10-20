@@ -68,6 +68,7 @@ On another host, set up clean URLs yourself, or change the footer links to `priv
 ## Update checklist
 
 - **New app release**: nothing to do. See [[Releases and Downloads]].
+- **New logo or link-preview image**: replace `assets/logo.svg` / `assets/og-image.jpg` (1200×630) and bump their `?v=` in `index.html`, `privacy.html` and `legal.html`.
 - **New showreel**: replace `assets/showreel.mp4` and the poster, and bump `?v=` in `index.html`.
 - **New third-party script, cookie, form or storage**: update `privacy.html` first.
 - **New design element**: follow [[Design System]].
