@@ -119,6 +119,7 @@ a:visited { color: var(--link); }
 }
 .icon-grid a { border-right: var(--hairline); border-bottom: var(--hairline); min-height: 64px; }
 .icon-grid a[aria-current="true"] { background: var(--yellow-sticker); }
+.icon-grid a:last-child:nth-child(odd) { grid-column: span 2; }
 .icon-grid a:visited, .icon-label-nav a:visited { color: var(--ink); }
 
 .cta-block-red {
@@ -338,11 +339,12 @@ button { font: inherit; color: inherit; }
 .faq details[open] summary::before { content: "[−]"; }
 .faq details[open] summary { border-bottom: var(--hairline); }
 .faq details p { margin: 0; padding: var(--md) var(--lg); background: var(--tint-lime); }
+.faq-more { margin: var(--md) 0 0; font: 400 14px/1.4 var(--f-serif); }
 
 /* ============ footer-band ============ */
 .footer-band { margin-top: var(--section); border-top: var(--hairline); padding: var(--lg); background: var(--canvas); font: 400 12px/1.4 var(--f-serif); text-align: center; }
-.icon-label-nav { display: grid; grid-template-columns: repeat(4, 1fr); position: relative; margin-bottom: var(--lg); }
-.icon-label-nav::before { content: ""; position: absolute; left: 12.5%; right: 12.5%; top: 20px; border-top: var(--hairline); }
+.icon-label-nav { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); position: relative; margin-bottom: var(--lg); }
+.icon-label-nav::before { content: ""; position: absolute; left: 10%; right: 10%; top: 20px; border-top: var(--hairline); }
 .icon-label-nav a { position: relative; }
 .icon-label-nav svg { background: var(--canvas); padding: 0 var(--xs); box-sizing: content-box; }
 .footer-band .legal { font-size: 14px; }
@@ -401,6 +403,7 @@ button { font: inherit; color: inherit; }
   .btn, .os-tab, .filter button, .icon-label-nav a { min-height: 44px; }
 }
 @media (max-width: 600px) {
+  .icon-label-nav a { font-size: 10px; padding: var(--sm) 2px; }
   .top-banner { flex-wrap: wrap; }
   .banner-copy { flex-basis: 100%; order: 2; }
   .banner-right { margin-left: auto; }
