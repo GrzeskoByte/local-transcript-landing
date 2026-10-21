@@ -1,6 +1,6 @@
 # Design System
 
-Both the website and the app follow `DESIGN.md` (the full spec, with tokens in its front matter). It's a take on **catalog-era 1996 enterprise web design**: a literal black page frame, flat colored "ribbon cards", chunky Arial Black titles, Times body text and hand-cut "sticker" elements. It uses **system fonts only**.
+Both the website and the app follow **Halftone Window**, specified in `DESIGN.md` (tokens in its front matter). Every box is a framed window — 2px black frame, a black title bar with three dots, a hard offset shadow — on a white desk with a dot grid. A pink brand field carries halftone dot textures, and one hot-pink accent marks the primary action. Fonts are self-hosted: **Archivo Black** for uppercase display type and **JetBrains Mono** for everything else.
 
 ![The design language on the landing page](images/landing-features.png)
 
@@ -8,47 +8,44 @@ Both the website and the app follow `DESIGN.md` (the full spec, with tokens in i
 
 | Token | Hex | Used for |
 | --- | --- | --- |
-| `primary` | `#e91d2a` | Red CTA block, cert seal, phone callout text |
-| `ink` / `frame-ink` | `#000000` | Text, page frame, top banner |
-| `canvas` | `#ffffff` | Page background, card titles |
-| `yellow-sticker` | `#fcc20f` | "Download it FREE", NEW! bursts, active filters |
-| `purple-stripe` | `#6a26a4` | Sticker accent |
-| `link` | `#0000ee` | Classic blue links |
+| `pink` | `#f48ca8` | Brand field: hero, download section, page heads, open rows |
+| `pink-deep` | `#d6336c` | Halftone dots on pink — never text |
+| `pink-wash` | `#fff3f6` | Hovered rows, the theme preview |
+| `hot` | `#ff4e7e` | The one accent: primary action, REC lamp, focus ring, selected-tab underline |
+| `berry` | `#c2185b` | Accent as text on white: links, timestamps |
+| `ink` | `#000000` | Frames, title bars, primary buttons, text |
+| `paper` | `#ffffff` | Window bodies, the desk |
+| `panel` | `#eeedef` | Grey window areas, table heads |
+| `mute` / `faint` / `rule` | `#5c5a60` / `#8a8790` / `#d6d3d9` | Secondary text / placeholders / row dividers and the dot grid |
 
-Ribbon-card tints (one per card body):
-
-| `tint-olive` | `tint-sage` | `tint-salmon` | `tint-peach` | `tint-lime` | `tint-sky` | `tint-steel` | `tint-periwinkle` |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `#8e8a25` | `#b3bd95` | `#d77a7a` | `#e6915d` | `#c0d4a7` | `#9ab6c8` | `#a5b8c0` | `#8c9ae0` |
-
-Section headers alternate **olive** and **salmon** "eyebrow" bands.
+Text on `pink` and `hot` is always black.
 
 ## Typography
 
-| Role | Font | Size / weight |
+| Role | Font | Size |
 | --- | --- | --- |
-| Display / H1 | Arial Black | 36px / 24px, 900 |
-| H2 / H3, buttons, UI labels | Helvetica | 16 / 14 / 12px, 700 |
-| Body | Times New Roman | 14px, 400, line-height 1.4 |
-| Small / caption | Times New Roman | 12 / 11px |
+| Hero / section headline | Archivo Black, uppercase | `clamp(52px, 9.6vw, 150px)` / `clamp(40px, 5.6vw, 84px)` |
+| Card title, step number, big figures | Archivo Black | 22–40px |
+| Body | JetBrains Mono 500 | 14px, line-height 1.6 |
+| Labels, buttons, tags | JetBrains Mono 700–800 | 12.5–16px |
 
-## Shape and spacing
+## Shape, shadow, spacing
 
-- **No rounded corners** (`0px`), except round seals (`9999px`).
-- Spacing scale: 2, 4, 6, 8, 10, 12, 16, 20, 24 · sections 32 / 40 / 48 px.
+- **Square everything** (0 radius). Only the title-bar dots and the REC lamp are round.
+- **Hard shadows**: 4 / 5 / 7 / 9px black offsets, never blurred. Buttons press into their shadow.
+- Sections are full-width bands with a 2px rule between them; content max-width 1320px.
 
 ## Components
 
 | Component | Description |
 | --- | --- |
-| **Page frame** | 8px black border around the viewport |
-| **Top banner** | Black bar: logo, tagline, sticker, phone-style callout |
-| **Eyebrow** | Full-width tinted band with a display-size title |
-| **Ribbon card** | White title strip over a tinted body, black 1px border. Can hold a monospace "notch" |
-| **CTA block (red)** | Red panel with white text and a button |
-| **Sticker / NEW! burst** | Yellow, slightly rotated label |
-| **Cert seal** | Round red badge ("100% OFFLINE") |
-| **Icon-label nav** | Grid of icon + uppercase label tiles (rail, footer) |
-| **Data table** | Black header row, plain cells |
+| **Window** | `.win` + `.bar`: framed box with a black title bar and three dots. Hot or pink bars mark the emphasised one. |
+| **Nav window** | Sticky framed bar: brand cell, links, dotted filler, Theme, hot **Download · free** |
+| **Big button / button** | `.go` (58px, black, hover hot) and `.btn` (framed, hover pink) |
+| **Tag** | Framed chip: white, black, pink or hot |
+| **Step module** | Black number cell, title and text, grey visual cell |
+| **Segmented tabs** | Platform tabs, filters, the EN/ES switch: the selected cell is black with a hot underline |
+| **Expandable row** | FAQ items and release versions: `+`/`−` box, pink when open |
+| **Halftone** | Dot texture masked to a corner of pink/black bands; animated canvas in the hero |
 
-When you add UI, reuse these tokens and components rather than inventing new styles.
+See `DESIGN.md` for the full list. When you add UI, reuse these tokens and components rather than inventing new styles.

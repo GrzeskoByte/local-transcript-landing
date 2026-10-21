@@ -6,11 +6,12 @@ The landing page is a **static site with no build step and no dependencies**.
 
 | Path | Purpose |
 | --- | --- |
-| `index.html` | The whole landing page: markup, the inline SVG icon sprite, the Vercel analytics loaders |
-| `styles.css` | Page styles, following `DESIGN.md` |
-| `app.js` | Behavior: live GitHub Releases, OS/CPU detection, download panels, release history, download counter, showreel, copy buttons, scroll-spy navigation, download click events |
+| `index.html` | The whole landing page: markup and the Vercel analytics loaders |
+| `styles.css` | Page styles and self-hosted `@font-face` rules, following `DESIGN.md` |
+| `app.js` | Behavior: live GitHub Releases, OS/CPU detection, download panels, release history, download counter, hero halftone animation, tour player, copy buttons, scroll-spy navigation, download click events |
+| `site.js` | Shared by every page: the theme picker (nothing stored) and the EN/ES switch on the legal pages |
 | `privacy.html`, `legal.html`, `legal.css` | Bilingual (EN/ES) legal pages, see [[Legal Pages]] |
-| `assets/` | `logo.svg`, `og-image.jpg`, `showreel.mp4` + `showreel-poster.jpg`, `fonts/` |
+| `assets/` | `logo.svg`, `og-image.jpg`, `showreel.mp4` + `showreel-poster.jpg`, `fonts/` (Archivo Black and JetBrains Mono, OFL, licence files alongside) |
 | `vercel.json` | Clean URLs, cache headers, security headers |
 | `DESIGN.md` | The design system, see [[Design System]] |
 | `wiki/` | The source of this wiki, see [[Contributing to the Wiki]] |
@@ -49,9 +50,9 @@ Main functions:
 | `latestFor(os)` | Newest stable release that has files for that OS (falls back while a new version is still building) |
 | `INSTALL` | Install steps for each package kind |
 | `trackDownload` | Sends the Vercel `Download` custom event (see [[Analytics and Download Counts]]) |
-| `spy()` | Highlights the rail link for the section in view |
+| `spy()` | Highlights the nav link for the section in view |
 
-Nothing is stored in cookies, `localStorage` or anywhere else on the visitor's device.
+Nothing is stored in cookies, `localStorage` or anywhere else on the visitor's device — the theme picker included.
 
 ## Deploy
 

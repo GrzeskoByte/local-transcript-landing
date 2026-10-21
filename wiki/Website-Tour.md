@@ -1,20 +1,25 @@
 # Website Tour
 
-A section-by-section guide to the Local Transcriber landing page. It's a single page with a navigation rail on the left and every section in the column on the right.
+A section-by-section guide to the Local Transcriber landing page. It's a single page of full-width bands under a sticky navigation window.
 
 > The screenshots use sample release data (version 0.1.20). The live site always shows the newest real release from GitHub.
 
-## Header and hero
+## Navigation and hero
 
 ![Header and hero](images/landing-hero.png)
 
 | Element | What it does |
 | --- | --- |
-| **Top banner** | Logo (a flat white tile with a black waveform, the same mark as the app's own header), tagline, the yellow **Download it FREE** sticker and the current version (**v0.1.20 · NO ACCOUNT**). The version comes live from GitHub. |
-| **Navigation rail** | Download · How it works · Features · Privacy · All versions · Build it · FAQ · **Docs** (this wiki) · GitHub. It stays in view on desktop and highlights the section you're reading. On phones it becomes a horizontal strip. |
-| **Red CTA block** | A short pitch and **Download for <your OS>** |
-| **Hero** | Headline, **Download for <your OS>** (links straight to the recommended installer) and **Watch the 15s tour** |
-| **Showreel** | A 15-second video of the record → transcribe → summarize workflow. Press **Play the 15s tour**. |
+| **Navigation window** | Brand · How it works · Features · Privacy · All versions · FAQ · **Docs** (this wiki) · GitHub, then **Theme** and **Download · free**. It stays at the top and highlights the section you're reading. On phones and tablets only the brand, Theme and Download stay. |
+| **Hero** | "Every meeting. Every word." over an animated halftone field that follows the pointer. **Download for <your OS>** links straight to the recommended installer; **Watch the 15s tour** jumps to the tour. Tags list the essentials and the current version (live from GitHub). |
+| **App windows** | A recording window, a transcript and a summary, stacked like the app. |
+| **Ticker** | No account · No cloud · No uploads · MIT · whisper.cpp · Parakeet · Ollama · platforms. |
+
+## Fifteen-second tour
+
+![Tour](images/landing-tour.png)
+
+The showreel in a player window. **Play** starts it; the three phases (Record → Transcribe → Summarize) light up as the video reaches them, with a progress bar and timer.
 
 ## How it works
 
@@ -26,23 +31,31 @@ Three steps: **01 Record**, **02 Transcribe**, **03 Share**.
 
 ![Features](images/landing-features.png)
 
-Ten cards: two-way capture, one-click GPU, crash-safe recording, the tiered model catalog, full-text search, local LLM summaries, company calendar, team sharing through GitLab, open file formats, and in-app updates. The version numbers on the *Install once, stay up to date* card (previous → newest) also come live from GitHub.
+Nine windows: two-way capture, one-click GPU, crash-safe recording, the tiered model catalog, full-text search, local LLM summaries, company calendar, team sharing through GitLab, and in-app updates. The version numbers on the *updates* window (previous → newest) come live from GitHub.
+
+## Make it yours
+
+![Theme picker](images/landing-theme.png)
+
+Brand and accent swatches (plus a custom colour) recolour the whole page and the app preview next to them — the same two controls as the app's Settings → Appearance. **Theme** in the navigation opens the same picker anywhere on the page. The choice lasts for the current visit only; nothing is saved on the device.
 
 ## Privacy
 
 ![Privacy](images/landing-privacy.png)
 
-A table of exactly what can leave the user's computer, and when. Details: [[Privacy]].
+A table of exactly what can leave the user's computer, and when, plus "0 accounts · 0 servers of ours · 0 bytes of audio uploaded". Details: [[Privacy]].
 
 ## Download
 
 ![Download section](images/landing-download-full.png)
 
-- **Release chip**: newest version and release date. The dot turns grey while loading or when offline.
-- **Platform tabs**: **macOS / Windows / Linux**. Your platform is tagged **YOU**. Use the arrow keys to move between tabs.
-- **Left panel**: the big download button for the recommended file (picked by OS and CPU), its file name, and numbered install steps. Commands have a **copy** button.
-- **Right panel**: every file for that platform in the newest version, with package type, architecture, size, a short SHA-256 (copy button) and a **Download** button.
-- **Info cards**: *Install once*, *Transcription built in*, and *Verify your download* (shows the right checksum command for the selected OS).
+- **Release row**: newest version and release date. The lamp turns grey while loading or when offline.
+- **Platform tabs**: **macOS / Windows / Linux**. Your platform is tagged **you**. Use the arrow keys to move between tabs.
+- **Lead strip**: what we detected ("We think you're on a Mac with Apple Silicon") and the big download button for the recommended file (picked by OS and CPU).
+- **File rows**: every file for that platform in the newest version, with package, architecture, size, **Download** and **Copy SHA-256**.
+- **Install**: numbered steps for the recommended file. Commands have a **Copy** button.
+- **Side windows**: *install once*, *transcription built in*, *verify* (the right checksum command for the selected OS) and the download counter.
+- **On a phone**: a note explains the app runs on a computer, with **Send me the link** (share sheet, or copy).
 
 Per-platform views:
 
@@ -72,7 +85,7 @@ Commands to clone and build the app, and to plug in your own GPU engine.
 
 ![Offline fallback](images/landing-download-offline.png)
 
-A yellow notice appears, and every button links to the GitHub Releases page instead.
+A notice appears, and every button links to the GitHub Releases page instead.
 
 ## FAQ
 
@@ -84,7 +97,7 @@ Ten questions that expand when clicked, followed by a link to this documentation
 
 ![Footer](images/landing-footer.png)
 
-Home · Download · Releases · Docs · Source, plus copyright, the MIT license, **Privacy** and **Legal notice**.
+Copyright and the MIT license, then Download · Releases · Docs · Source · **Privacy** · **Legal notice**.
 
 ## On a phone
 

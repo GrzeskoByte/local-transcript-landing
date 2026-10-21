@@ -3,26 +3,103 @@
   'use strict';
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-  const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- toast + copy ---------- */
   const toast = $('#toast'); let toastT;
   function say(msg) { toast.textContent = msg; toast.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => toast.classList.remove('on'), 1800); }
   async function copy(text, btn) {
     try { await navigator.clipboard.writeText(text); } catch {
-      const ta = el('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+      const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
       try { document.execCommand('copy'); } catch { /* ignore */ } ta.remove();
     }
-    if (btn) { btn.classList.add('done'); btn.innerHTML = '<svg width="14" height="14"><use href="#i-check"/></svg>'; setTimeout(() => { btn.classList.remove('done'); btn.innerHTML = '<svg width="14" height="14"><use href="#i-copy"/></svg>'; }, 1500); }
+    if (btn) {
+      const label = btn.dataset.label || btn.textContent; btn.dataset.label = label;
+      btn.classList.add('ok'); btn.textContent = '[x] copied';
+      setTimeout(() => { btn.classList.remove('ok'); btn.textContent = label; }, 1600);
+    }
     say('Copied to clipboard');
   }
   document.addEventListener('click', (e) => { const b = e.target.closest('[data-copy]'); if (b) copy(b.dataset.copy, b); });
 
-  /* ---------- showreel ---------- */
-  const video = $('#reelVideo'), reelBox = $('#reelBox');
-  $('#reelPlay').addEventListener('click', () => { video.controls = true; video.play(); reelBox.classList.add('playing'); });
-  video.addEventListener('ended', () => { reelBox.classList.remove('playing'); video.controls = false; });
+  /* ---------- level meters (decor) ---------- */
+  $$('[data-bars]').forEach((box) => {
+    const two = box.dataset.bars === '2';
+    for (let i = 0; i < 28; i++) {
+      const s = document.createElement('span');
+      s.style.animationDelay = (two ? ((i * 23 + 5) % 11) / 18 : ((i * 37) % 13) / 20) + 's';
+      box.appendChild(s);
+    }
+  });
+
+  /* ---------- hero halftone: drifting dot blobs that follow the pointer ---------- */
+  (function halftone(cv) {
+    if (!cv || !cv.getContext) return;
+    const host = cv.parentElement, ctx = cv.getContext('2d');
+    let seed = 11;
+    const rnd = () => { seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    const blobs = Array.from({ length: 6 }, () => ({ x: 0.45 + rnd() * 0.6, y: rnd(), rad: 0.07 + rnd() * 0.1, amp: 0.6 + rnd() * 0.5, ph: rnd() * 6.28, sp: 0.00006 + rnd() * 0.00008, ax: 0.03 + rnd() * 0.05, ay: 0.03 + rnd() * 0.05 }));
+    const specks = Array.from({ length: 140 }, () => ({ x: rnd(), y: rnd(), r: 0.5 + rnd() * 1.3, ph: rnd() * 6.28 }));
+    let W = 0, H = 0, last = 0, raf = 0, visible = true, color = '#d6336c';
+    const ptr = { x: -9999, y: -9999, s: 0 };
+    function size() { const r = host.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1); W = r.width; H = r.height; cv.width = Math.round(W * d); cv.height = Math.round(H * d); ctx.setTransform(d, 0, 0, d, 0, 0); draw(reducedMotion() ? 0 : performance.now()); }
+    function draw(t) {
+      const step = 8, area = Math.sqrt(W * H) || 1;
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      const pos = blobs.map((b) => ({ x: (b.x + Math.sin(t * b.sp + b.ph) * b.ax) * W, y: (b.y + Math.cos(t * b.sp * 1.3 + b.ph) * b.ay) * H, k: 1 / Math.pow(b.rad * area * 1.15, 2), a: b.amp }));
+      if (ptr.s > 0.01) pos.push({ x: ptr.x, y: ptr.y, k: 1 / Math.pow(Math.min(W, H) * 0.16, 2), a: 1.1 * ptr.s });
+      let row = 0;
+      for (let y = 0; y < H + step; y += step * 0.87, row++) {
+        for (let x = row % 2 ? step / 2 : 0; x < W + step; x += step) {
+          let v = 0;
+          for (const p of pos) { const dx = x - p.x, dy = y - p.y; v += p.a * Math.exp(-(dx * dx + dy * dy) * p.k); }
+          // keep the area behind the headline and copy calm (all of it when the copy spans the width)
+          if (x < (W < 700 ? W : 0.42 * W) && y > 0.12 * H) v *= 0.25;
+          v -= 0.14;
+          if (v <= 0) continue;
+          const r = Math.pow(Math.min(1, v), 0.85) * step * 0.56; if (r < 0.45) continue;
+          ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, 6.2832);
+        }
+      }
+      for (const p of specks) { const sx = p.x * W + Math.sin(t * 0.0002 + p.ph) * 6, sy = p.y * H; ctx.moveTo(sx + p.r, sy); ctx.arc(sx, sy, p.r, 0, 6.2832); }
+      ctx.fill();
+    }
+    function loop(now) {
+      raf = 0;
+      if (!visible || reducedMotion()) return;
+      if (now - last > 33) { last = now; ptr.s *= 0.965; draw(now); }
+      raf = requestAnimationFrame(loop);
+    }
+    const start = () => { if (!raf && visible && !reducedMotion()) raf = requestAnimationFrame(loop); };
+    const recolor = () => { color = getComputedStyle(document.documentElement).getPropertyValue('--pink-deep').trim() || '#d6336c'; draw(reducedMotion() ? 0 : performance.now()); };
+    host.addEventListener('pointermove', (e) => { const r = host.getBoundingClientRect(); ptr.x = e.clientX - r.left; ptr.y = e.clientY - r.top; ptr.s = Math.min(1, ptr.s + 0.12); });
+    if (window.ResizeObserver) new ResizeObserver(size).observe(host); else addEventListener('resize', size);
+    if (window.IntersectionObserver) new IntersectionObserver(([e]) => { visible = e.isIntersecting; start(); }).observe(host);
+    document.addEventListener('themechange', recolor);
+    size(); recolor(); start();
+  })($('#heroHt'));
+
+  /* ---------- tour: the showreel, with phases following playback ---------- */
+  const video = $('#reelVideo'), playBtn = $('#reelPlay'), phases = $$('#phases .phase');
+  function tourUpdate() {
+    const t = video.currentTime || 0, d = video.duration || 15, playing = !video.paused && !video.ended;
+    const ph = Math.min(2, Math.floor((t / d) * 3));
+    const started = t > 0 || playing, finished = video.ended || t >= d - 0.05;
+    phases.forEach((p, i) => { p.classList.toggle('done', started && (finished || i < ph)); p.classList.toggle('on', started && !finished && i === ph); });
+    $('#tourTime').textContent = '0:' + String(Math.floor(t)).padStart(2, '0');
+    $('#tourBar').style.width = Math.min(100, (t / d) * 100) + '%';
+    playBtn.textContent = playing ? '❚❚ Pause' : finished ? '↺ Replay' : '▶ Play';
+    playBtn.setAttribute('aria-label', playing ? 'Pause the tour' : 'Play the tour');
+  }
+  const togglePlay = () => { if (video.paused || video.ended) video.play().catch(() => {}); else video.pause(); };
+  playBtn.addEventListener('click', togglePlay);
+  video.addEventListener('click', togglePlay);
+  ['play', 'pause', 'ended', 'timeupdate', 'loadedmetadata'].forEach((ev) => video.addEventListener(ev, tourUpdate));
+  // timeupdate fires ~4×/s; smooth the bar while playing
+  video.addEventListener('play', function tick() { tourUpdate(); if (!video.paused && !video.ended) requestAnimationFrame(tick); });
 
   /* =========================================================
      Downloads — always the newest GitHub Release, read live
@@ -30,9 +107,9 @@
   const REPO = 'GrzeskoByte/local-transcript';
   const RELEASES_URL = `https://github.com/${REPO}/releases`;
   const OS_META = {
-    mac: { name: 'macOS', icon: 'i-apple', req: 'macOS 12 Monterey or later' },
-    win: { name: 'Windows', icon: 'i-windows', req: 'Windows 10 or 11 · WebView2 (preinstalled)' },
-    linux: { name: 'Linux', icon: 'i-linux', req: 'x86_64 or ARM64 · webkit2gtk-4.1' },
+    mac: { name: 'macOS', req: 'macOS 12 Monterey or later' },
+    win: { name: 'Windows', req: 'Windows 10 or 11 · WebView2 (preinstalled)' },
+    linux: { name: 'Linux', req: 'x86_64 or ARM64 · webkit2gtk-4.1' },
   };
 
   function classify(name) {
@@ -86,9 +163,10 @@
 
   // --- platform detection ---
   const ua = navigator.userAgent;
-  let userOS = /Mac|iPhone|iPad/.test(navigator.platform || ua) || /Mac OS X/.test(ua) ? 'mac' : /Win/.test(navigator.platform || ua) ? 'win' : /Linux|X11|CrOS/.test(ua) ? 'linux' : 'mac';
+  const isPhone = /Android|iPhone|iPad|iPod|Mobile/i.test(ua) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua));
+  let userOS = /Mac|iPhone|iPad/.test(navigator.platform || ua) || /Mac OS X/.test(ua) ? 'mac' : /Win/.test(navigator.platform || ua) ? 'win' : /Linux|X11|CrOS/.test(ua) && !/Android/.test(ua) ? 'linux' : 'mac';
   let userArch = /aarch64|arm64/i.test(ua) ? 'arm64' : userOS === 'mac' ? 'arm64' : 'x64';
-  if (userOS === 'mac') { try { const gl = document.createElement('canvas').getContext('webgl'); const dbg = gl && gl.getExtension('WEBGL_debug_renderer_info'); const r = dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : ''; if (/Intel/i.test(r)) userArch = 'x64'; } catch { /* keep default */ } }
+  if (userOS === 'mac' && !isPhone) { try { const gl = document.createElement('canvas').getContext('webgl'); const dbg = gl && gl.getExtension('WEBGL_debug_renderer_info'); const r = dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : ''; if (/Intel/i.test(r)) userArch = 'x64'; } catch { /* keep default */ } }
   const archReady = navigator.userAgentData?.getHighEntropyValues?.(['architecture', 'bitness']).then((v) => { if (v.architecture === 'arm') userArch = 'arm64'; else if (v.architecture === 'x86') userArch = 'x64'; }).catch(() => {}) ?? Promise.resolve();
 
   const fmtSize = (b) => (b == null ? '' : b > 1e6 ? (b / 1048576).toFixed(1) + ' MB' : (b / 1024).toFixed(0) + ' KB');
@@ -103,12 +181,12 @@
   const INSTALL = {
     dmg: (a) => [`Open <b>${esc(a.name)}</b> and drag the app into <b>Applications</b>.`, 'Launch it and click <b>Allow</b> when macOS asks for the microphone.', 'If macOS blocks the first launch: <b>System Settings → Privacy &amp; Security → Open Anyway</b>.'],
     exe: (a) => [`Run <b>${esc(a.name)}</b> — it installs in seconds.`, 'If SmartScreen appears, choose <b>More info → Run anyway</b>.', 'Record your first meeting. Transcription is built in.'],
-    msi: (a) => [`Double-click <b>${esc(a.name)}</b> (ideal for managed / Intune deployments).`, { code: `msiexec /i "${a.name}" /qn`, note: 'Silent install for IT.' }],
+    msi: (a) => [`Double-click <b>${esc(a.name)}</b> (ideal for managed / Intune deployments).`, { code: `msiexec /i "${a.name}" /qn`, note: 'Silent install for IT:' }],
     appimage: (a) => ['Make it executable and run it — no install needed.', { code: `chmod +x ${a.name} && ./${a.name}` }],
     deb: (a) => [`Double-click <b>${esc(a.name)}</b> and choose <b>Install</b>.`, { code: `sudo apt install ./${a.name}`, note: 'Or from a terminal:' }],
     rpm: (a) => ['Install with dnf:', { code: `sudo dnf install ./${a.name}` }],
   };
-  const codeBlock = (c) => `<div class="code">${esc(c)}<button class="copy" data-copy="${esc(c)}" aria-label="Copy command"><svg width="14" height="14"><use href="#i-copy"/></svg></button></div>`;
+  const cmdBlock = (c) => `<div class="cmd"><code>${esc(c)}</code><button class="btn btn-sm" data-copy="${esc(c)}" aria-label="Copy command">Copy</button></div>`;
 
   let state = { rels: [], source: 'loading', os: userOS, filter: 'all' };
 
@@ -117,38 +195,47 @@
   const stable = () => state.rels.filter((r) => !r.prerelease);
   const latest = () => stable()[0] || state.rels[0] || null;
   const latestFor = (os) => [...stable(), ...state.rels].find((r) => r.assets.some((a) => a.os === os)) || null;
-  const ghButton = (label) => `<a class="btn btn-lg btn-primary" href="${RELEASES_URL}" target="_blank" rel="noopener"><svg width="20" height="20"><use href="#i-gh"/></svg>${label}</a>`;
+
+  function leadText(os, a) {
+    const name = OS_META[os].name;
+    if (os !== userOS || isPhone) return `Every ${name} build.`;
+    if (os === 'mac') return `We think you're on a Mac with ${userArch === 'x64' ? 'an Intel chip' : 'Apple Silicon'}.`;
+    if (os === 'win') return `We think you're on Windows${a && a.arch === 'arm64' ? ' on ARM' : ''}. WebView2 is already included.`;
+    return 'We think you\'re on Linux. The AppImage updates itself; deb and rpm get a download button.';
+  }
 
   function renderPlatform() {
     const os = state.os; const meta = OS_META[os]; const rel = latestFor(os);
-    $$('.os-tab').forEach((t) => { const on = t.dataset.os === os; t.setAttribute('aria-selected', on); t.tabIndex = on ? 0 : -1; const you = $('.you', t); if (t.dataset.os === userOS && !you) t.insertAdjacentHTML('beforeend', '<span class="you">you</span>'); });
-    const head = `<div class="os-name"><svg><use href="#${meta.icon}"/></svg><div><h3>${meta.name}</h3><p class="req">${meta.req}</p></div></div>`;
+    $$('#osTabs [role=tab]').forEach((t) => {
+      const on = t.dataset.os === os; t.setAttribute('aria-selected', on); t.tabIndex = on ? 0 : -1;
+      if (t.dataset.os === userOS && !isPhone && !$('.you', t)) $('b', t).insertAdjacentHTML('beforeend', '<i class="you">you</i>');
+    });
+    const steps = $('#installSteps');
     if (!rel) {
       const loading = state.source === 'loading';
-      $('#primaryDl').innerHTML = head + (loading ? '<p class="req">Looking up the newest release…</p>' : ghButton('Get it on GitHub Releases'));
-      $('#binTable').innerHTML = `<h4><span>${meta.name} binaries</span></h4><p class="req">${loading ? 'Loading…' : `Couldn't load the file list right now. <a href="${RELEASES_URL}" target="_blank" rel="noopener">Open GitHub Releases →</a>`}</p>`;
+      $('#primaryDl').innerHTML = `<span class="txt">${esc(leadText(os))}<small>${loading ? 'Looking up the newest release…' : 'Couldn\'t load the file list right now.'}</small></span>` +
+        (loading ? '' : `<a class="go" href="${RELEASES_URL}" target="_blank" rel="noopener">Get it on GitHub Releases →</a>`);
+      $('#binTable').innerHTML = `<p class="empty">${loading ? 'Loading…' : `<a href="${RELEASES_URL}" target="_blank" rel="noopener">Open GitHub Releases →</a>`}</p>`;
+      steps.hidden = true;
       return;
     }
     const a = pick(rel.assets, os);
-    const steps = a ? (INSTALL[a.kind] || (() => []))(a) : [];
-    $('#primaryDl').innerHTML = `${head}
-      ${a ? `<a class="btn btn-lg btn-primary" href="${a.url}">
-          <svg width="20" height="20"><use href="#i-dl"/></svg>Download ${a.label === 'Installer' ? 'installer' : a.label}
-          <span class="sub">${esc(a.ext)}${a.size ? ' · ' + fmtSize(a.size) : ''}</span></a>
-        <div class="fname">${esc(a.name)}</div>` : '<p class="req">No build for this platform yet.</p>'}
-      <ol class="install-steps">${steps.map((s) => `<li><div>${typeof s === 'string' ? s : `${s.note ? `${esc(s.note)}` : ''}${codeBlock(s.code)}`}</div></li>`).join('')}</ol>`;
+    $('#primaryDl').innerHTML = `<span class="txt">${esc(leadText(os, a))}<small>${esc(meta.req)} · v${esc(rel.version)}</small></span>` +
+      (a ? `<a class="go" href="${a.url}">↓ Download ${esc(meta.name)} · ${esc(a.label === 'Installer' ? 'installer' : a.label)}<span class="sub">.${esc(a.ext)} · ${esc(a.archLabel)}${a.size ? ' · ' + fmtSize(a.size) : ''}</span></a>` : '<span class="txt">No build for this platform yet.</span>');
 
     const list = rel.assets.filter((x) => x.os === os);
-    $('#binTable').innerHTML = `<h4><span>${meta.name} binaries · v${esc(rel.version)}</span><span>${list.length} files</span></h4>` + list.map((x) => `
-      <div class="bin">
-        <div>
-          <div class="nm"><strong>${esc(x.label)}</strong><span class="ext">.${esc(x.ext)}</span><span class="arch">${x.archLabel}</span>${a && x.name === a.name ? '<span class="rec">Recommended</span>' : ''}</div>
-          <div class="meta"><span>${esc(x.name)}</span>${x.size ? `<span>${fmtSize(x.size)}</span>` : ''}${x.sha ? `<span class="sha">sha256:${x.sha.slice(0, 12)}… <button class="copy" data-copy="${x.sha}" aria-label="Copy SHA-256"><svg width="12" height="12"><use href="#i-copy"/></svg></button></span>` : ''}</div>
-        </div>
-        <a class="btn btn-sm" href="${x.url}" aria-label="Download ${esc(x.name)}"><svg width="15" height="15"><use href="#i-dl"/></svg>Download</a>
+    $('#binTable').innerHTML = list.map((x) => `
+      <div class="file">
+        <span><code>${esc(x.name)}</code><small>${esc(x.label)} · ${x.archLabel}${x.size ? ' · ' + fmtSize(x.size) : ''}${a && x.name === a.name ? ' · <span class="rec">recommended</span>' : ''}</small></span>
+        <a class="btn btn-sm" href="${x.url}" aria-label="Download ${esc(x.name)}">↓ Download</a>
+        ${x.sha ? `<button class="btn btn-sm cp" data-copy="${x.sha}" title="sha256:${x.sha}" aria-label="Copy SHA-256 of ${esc(x.name)}">Copy SHA-256</button>` : '<span></span>'}
       </div>`).join('');
+
+    const s = a ? (INSTALL[a.kind] || (() => []))(a) : [];
+    steps.hidden = !s.length;
+    steps.innerHTML = `<h3>Install</h3><ol>${s.map((x) => `<li><div>${typeof x === 'string' ? x : `${x.note ? esc(x.note) : ''}${cmdBlock(x.code)}`}</div></li>`).join('')}</ol>`;
     $('#shaCmd').textContent = os === 'win' ? 'certutil -hashfile <file> SHA256' : os === 'mac' ? 'shasum -a 256 <file>' : 'sha256sum <file>';
-    $('#backendHint').innerHTML = os === 'mac' ? 'whisper.cpp ships inside the app, GPU-accelerated with Metal. The speech model downloads once, on your first transcription.' : 'whisper.cpp ships inside the app. The speech model downloads once (~550 MB), on your first transcription.';
+    $('#backendHint').textContent = os === 'mac' ? 'whisper.cpp ships inside the app, GPU-accelerated with Metal. The speech model downloads once, on your first transcription.' : 'whisper.cpp ships inside the app. The speech model downloads once (~550 MB), on your first transcription.';
   }
 
   // Public total from GitHub's per-file download_count, summed over every
@@ -161,22 +248,21 @@
     box.hidden = false;
   }
 
-  const osIcon = (os) => `<span class="plat"><svg><use href="#${OS_META[os].icon}"/></svg>${OS_META[os].name}</span>`;
   function renderHistory() {
     const f = state.filter;
     if (!state.rels.length) {
-      $('#releases').innerHTML = `<p class="req">${state.source === 'loading' ? 'Loading releases from GitHub…' : `Couldn't reach GitHub right now. <a href="${RELEASES_URL}" target="_blank" rel="noopener">See every release on GitHub →</a>`}</p>`;
+      $('#releases').innerHTML = `<p class="status">${state.source === 'loading' ? 'Loading releases from GitHub…' : `Couldn't reach GitHub right now. <a href="${RELEASES_URL}" target="_blank" rel="noopener">See every release on GitHub →</a>`}</p>`;
       return;
     }
     const top = latest();
-    $('#releases').innerHTML = state.rels.map((r, i) => {
+    $('#releases').innerHTML = state.rels.map((r) => {
       const assets = r.assets.filter((a) => f === 'all' || a.os === f).sort((a, b) => 'mac win linux'.indexOf(a.os) - 'mac win linux'.indexOf(b.os));
       return `<details class="release" ${r === top ? 'open' : ''}>
-        <summary><span class="v">v${esc(r.version)}</span>${r === top ? '<span class="latest">Latest</span>' : ''}${r.prerelease ? '<span class="pre">Pre-release</span>' : ''}<span class="date">${fmtDate(r.date)}</span><span class="count">${assets.length} binaries</span></summary>
-        <table class="matrix"><thead><tr><th>Platform</th><th>Package</th><th>Arch</th><th>File</th><th>Size</th><th></th></tr></thead><tbody>
-        ${assets.map((a) => `<tr><td>${osIcon(a.os)}</td><td>${esc(a.label)}</td><td class="s">${a.archLabel}</td><td class="f">${esc(a.name)}</td><td class="s">${fmtSize(a.size) || '—'}</td>
-          <td class="a"><a class="btn btn-sm" href="${a.url}"><svg width="14" height="14"><use href="#i-dl"/></svg>Get</a></td></tr>`).join('')}
-        </tbody></table>
+        <summary><span class="v">v${esc(r.version)}</span>${r === top ? '<span class="tag h">Latest</span>' : ''}${r.prerelease ? '<span class="tag">Pre-release</span>' : ''}<span class="date">${fmtDate(r.date)}</span><span>${assets.length} binaries</span></summary>
+        <div class="matrix-wrap"><table class="matrix"><thead><tr><th>Platform</th><th>Package</th><th>Arch</th><th>File</th><th>Size</th><th><span class="sr-only">Download</span></th></tr></thead><tbody>
+        ${assets.map((a) => `<tr><td>${OS_META[a.os].name}</td><td>${esc(a.label)}</td><td>${a.archLabel}</td><td class="f">${esc(a.name)}</td><td>${fmtSize(a.size) || '—'}</td>
+          <td><a class="btn btn-sm" href="${a.url}" aria-label="Download ${esc(a.name)}">↓ Get</a></td></tr>`).join('')}
+        </tbody></table></div>
         <div class="rel-notes">Release notes: ${r.notes.map((n) => `<a href="${n.url}" target="_blank" rel="noopener">${n.label} →</a>`).join(' · ')}</div>
       </details>`;
     }).join('');
@@ -186,25 +272,36 @@
     const rel = latest(); const note = $('#dlNote');
     $('#relDot').classList.toggle('pending', state.source !== 'live');
     if (rel) {
-      $('#relVer').textContent = 'v' + rel.version; $('#heroVer').textContent = 'v' + rel.version;
-      $('#relDate').textContent = rel.date ? `Latest release · ${fmtDate(rel.date)}` : 'Latest release';
-      const prev = stable()[1]; if (prev && $('#updNew')) { $('.upd-cur').textContent = prev.version; $('#updNew').textContent = rel.version; }
+      $('#relVer').textContent = 'Latest · v' + rel.version; $('#heroVer').textContent = 'v' + rel.version;
+      $('#relDate').textContent = (rel.date ? `Released ${fmtDate(rel.date)} · ` : '') + 'read live from GitHub Releases.';
+      const prev = stable()[1]; $('#updLine').textContent = prev ? `\nv${prev.version} → v${rel.version}` : '';
     } else {
       $('#relVer').textContent = 'Latest';
       $('#relDate').textContent = state.source === 'loading' ? 'Checking GitHub…' : 'On GitHub Releases';
     }
     if (state.source === 'offline') {
       note.hidden = false;
-      note.innerHTML = `<svg width="18" height="18"><use href="#i-warn"/></svg><span>Couldn't reach GitHub for live release data. <a href="${RELEASES_URL}" target="_blank" rel="noopener">Open GitHub Releases</a> for the newest build.</span>`;
+      note.innerHTML = `<b>[!]</b><span>Couldn't reach GitHub for live release data. <a href="${RELEASES_URL}" target="_blank" rel="noopener">Open GitHub Releases</a> for the newest build.</span>`;
     } else note.hidden = true;
+    if (isPhone) return; // keep "Download for free" → #download, where the phone note explains
     const r = latestFor(userOS); const a = r && pick(r.assets, userOS);
     const label = `Download for ${OS_META[userOS].name}`;
-    $('#heroDlText').textContent = label; $('#finalDl').lastChild.textContent = label;
+    $('#heroDlText').textContent = label; $('#finalDlText').textContent = label;
     const href = a ? a.url : state.source === 'loading' ? '#download' : RELEASES_URL;
     $('#heroDl').href = href; $('#finalDl').href = href;
   }
 
-  $$('.os-tab').forEach((t) => t.addEventListener('click', () => { state.os = t.dataset.os; renderPlatform(); }));
+  // On a phone there is nothing to install here: say so, and offer to send the link on.
+  if (isPhone) {
+    $('#phoneNote').hidden = false;
+    $('#shareLink').addEventListener('click', async () => {
+      const url = location.origin + location.pathname + '#download';
+      if (navigator.share) { try { await navigator.share({ title: 'Local Transcriber', text: 'Private, on-device meeting transcription — download it on your computer:', url }); return; } catch (e) { if (e.name === 'AbortError') return; } }
+      copy(url);
+    });
+  }
+
+  $$('#osTabs [role=tab]').forEach((t) => t.addEventListener('click', () => { state.os = t.dataset.os; renderPlatform(); }));
   $('#osTabs').addEventListener('keydown', (e) => {
     const order = ['mac', 'win', 'linux']; const i = order.indexOf(state.os);
     if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { state.os = order[(i + (e.key === 'ArrowRight' ? 1 : 2)) % 3]; renderPlatform(); $(`#tab-${state.os}`).focus(); e.preventDefault(); }
@@ -229,10 +326,8 @@
   document.addEventListener('click', trackDownload);
   document.addEventListener('auxclick', trackDownload);
 
-  // Mark the rail link for the section in view; on narrow screens the rail is a
-  // horizontal strip, so also scroll that link into the strip's view.
-  const navLinks = $$('.icon-grid a[href^="#"]');
-  const navStrip = $('.icon-grid');
+  // Mark the nav link for the section in view.
+  const navLinks = $$('.navlinks a[href^="#"]');
   let spyQueued = false, current = null;
   function spy() {
     spyQueued = false;
@@ -246,11 +341,7 @@
     if (active === current) return;
     current?.removeAttribute('aria-current');
     current = active;
-    if (!active) return;
-    active.setAttribute('aria-current', 'true');
-    if (navStrip.scrollWidth > navStrip.clientWidth) {
-      navStrip.scrollTo({ left: active.offsetLeft - (navStrip.clientWidth - active.offsetWidth) / 2 });
-    }
+    active?.setAttribute('aria-current', 'true');
   }
   const queueSpy = () => { if (!spyQueued) { spyQueued = true; requestAnimationFrame(spy); } };
   addEventListener('scroll', queueSpy, { passive: true });

@@ -2,7 +2,7 @@
 
 Live at **https://transcript.sierock.com** (Vercel).
 
-Static site, no build step, no dependencies: `index.html` + `styles.css` + `app.js` + `assets/`.
+Static site, no build step, no dependencies: `index.html` + `styles.css` + `app.js` + `site.js` + `assets/`.
 App repo: [GrzeskoByte/local-transcript](https://github.com/GrzeskoByte/local-transcript).
 
 ## Preview
@@ -11,7 +11,7 @@ App repo: [GrzeskoByte/local-transcript](https://github.com/GrzeskoByte/local-tr
 
 (Use a server rather than file:// so the GitHub Releases fetch works.)
 
-Visual design follows `DESIGN.md` (catalog-era 1996 style, system fonts only).
+Visual design follows `DESIGN.md` (Halftone Window — framed windows, pink halftone, Archivo Black + JetBrains Mono, self-hosted).
 
 ## Wiki
 
@@ -42,7 +42,7 @@ Draft releases are not visible to the API, so they don't show up until published
 
 If GitHub is unreachable or rate-limited (60 unauthenticated requests/hour per
 IP), the buttons link to GitHub Releases instead. Nothing is stored on the
-visitor's device — see `privacy.html`.
+visitor's device (the theme picker lasts for the current page only) — see `privacy.html`.
 
 ## Analytics
 

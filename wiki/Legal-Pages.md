@@ -1,6 +1,6 @@
 # Legal Pages
 
-The site has two bilingual pages (English first, then Spanish), linked from the footer. With `cleanUrls` on Vercel they're served at `/privacy` and `/legal`.
+The site has two bilingual pages, linked from the footer. They open in English; the **English / Español** switch (or a `#es` link) shows the Spanish text. With `cleanUrls` on Vercel they're served at `/privacy` and `/legal`.
 
 | Privacy policy | Legal notice |
 | --- | --- |
@@ -30,4 +30,4 @@ The site has two bilingual pages (English first, then Spanish), linked from the 
 
 - The owner's name and contact email appear in **both** files. Keep them in sync.
 - If the site starts collecting anything new (cookies, `localStorage`, forms, other third-party scripts), **update `privacy.html` first**.
-- Both pages share `legal.css`.
+- Both pages use `styles.css` plus `legal.css`, and `site.js` for the language switch. Edit the text inside each `<article lang="…">`; sections are `<section class="sect" id="en-N">` / `id="es-N"`, and the contents list links to those ids.
