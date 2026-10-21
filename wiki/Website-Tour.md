@@ -19,7 +19,7 @@ A section-by-section guide to the Local Transcriber landing page. It's a single 
 
 ![Tour](images/landing-tour.png)
 
-The showreel in a player window. **Play** starts it; the three phases (Record → Transcribe → Summarize) light up as the video reaches them, with a progress bar and timer.
+The showreel in a player window. **Play** starts it; the three phases (Record → Transcribe → Share) light up as the video reaches each scene, with a progress bar and timer. The scene start times live in `data-at` on `#phases` in `index.html` — update them if the showreel is replaced.
 
 ## How it works
 

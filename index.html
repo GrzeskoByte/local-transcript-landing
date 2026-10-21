@@ -104,14 +104,15 @@
 <section id="tour" class="sec dotted" aria-labelledby="tourH">
   <div class="wrap">
     <h2 class="h2" id="tourH">Fifteen seconds. The whole workflow.</h2>
-    <p class="intro">Record → transcribe → summarize. Press play.</p>
+    <p class="intro">Record → transcribe → share. Press play.</p>
     <section class="win sh-xl tour" aria-label="Tour player">
       <div class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="t">tour.mp4</span><span class="r"><span id="tourTime">0:00</span> / 0:15</span></div>
-      <video id="reelVideo" preload="metadata" playsinline poster="assets/showreel-poster.jpg?v=2" src="assets/showreel.mp4?v=2" aria-label="Fifteen-second tour of Local Transcriber: record, transcribe, summarize"></video>
-      <div class="phases" id="phases">
+      <video id="reelVideo" preload="metadata" playsinline poster="assets/showreel-poster.jpg?v=3" src="assets/showreel.mp4?v=3" aria-label="Fifteen-second tour of Local Transcriber: record a call, transcribe it on your GPU, turn it into issues, calendar follow-ups and exports"></video>
+      <!-- data-at: when each scene starts in the showreel (seconds); the last value ends phase 03 -->
+      <div class="phases" id="phases" data-at="2,4.2,6.3,9">
         <div class="phase"><span>01</span><b>Record</b><span>Mic + call, two tracks</span></div>
         <div class="phase"><span>02</span><b>Transcribe</b><span>On your GPU</span></div>
-        <div class="phase"><span>03</span><b>Summarize</b><span>Local LLM → GitLab, calendar</span></div>
+        <div class="phase"><span>03</span><b>Share</b><span>Issues, calendar, export</span></div>
       </div>
       <div class="player">
         <button class="go sh-sm" id="reelPlay" aria-label="Play the tour">▶ Play</button>

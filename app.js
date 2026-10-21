@@ -84,11 +84,11 @@
 
   /* ---------- tour: the showreel, with phases following playback ---------- */
   const video = $('#reelVideo'), playBtn = $('#reelPlay'), phases = $$('#phases .phase');
+  const sceneAt = $('#phases').dataset.at.split(',').map(Number); // phase i runs from sceneAt[i] to sceneAt[i + 1]
   function tourUpdate() {
     const t = video.currentTime || 0, d = video.duration || 15, playing = !video.paused && !video.ended;
-    const ph = Math.min(2, Math.floor((t / d) * 3));
-    const started = t > 0 || playing, finished = video.ended || t >= d - 0.05;
-    phases.forEach((p, i) => { p.classList.toggle('done', started && (finished || i < ph)); p.classList.toggle('on', started && !finished && i === ph); });
+    const finished = video.ended || t >= d - 0.05;
+    phases.forEach((p, i) => { p.classList.toggle('done', finished || t >= sceneAt[i + 1]); p.classList.toggle('on', !finished && t >= sceneAt[i] && t < sceneAt[i + 1]); });
     $('#tourTime').textContent = '0:' + String(Math.floor(t)).padStart(2, '0');
     $('#tourBar').style.width = Math.min(100, (t / d) * 100) + '%';
     playBtn.textContent = playing ? '❚❚ Pause' : finished ? '↺ Replay' : '▶ Play';

@@ -70,7 +70,7 @@ On another host, set up clean URLs yourself, or change the footer links to `priv
 
 - **New app release**: nothing to do. See [[Releases and Downloads]].
 - **New logo or link-preview image**: replace `assets/logo.svg` / `assets/og-image.jpg` (1200×630) and bump their `?v=` in `index.html`, `privacy.html` and `legal.html`.
-- **New showreel**: replace `assets/showreel.mp4` and the poster, and bump `?v=` in `index.html`.
+- **New showreel**: replace `assets/showreel.mp4` and the poster, bump `?v=` in `index.html`, and update the scene times in `data-at` on `#phases`. Keep it H.264/AAC with the `moov` atom at the start (`ffmpeg -movflags +faststart`) so it starts playing before it has fully downloaded.
 - **New third-party script, cookie, form or storage**: update `privacy.html` first.
 - **New design element**: follow [[Design System]].
 - **Test** on desktop and on a phone-sized screen. Block `api.github.com` in DevTools to check the offline fallback.
