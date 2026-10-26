@@ -67,7 +67,7 @@ Per-platform views:
 
 ![Download counter](images/landing-download-counter.png)
 
-The total number of installer downloads across every release, as counted by GitHub. It's hidden if GitHub can't be reached. See [[Analytics and Download Counts]].
+The total number of downloads across every release, installs and in-app updates alike, as counted by GitHub. It's hidden if GitHub can't be reached. See [[Analytics and Download Counts]].
 
 ### All binaries & versions
 

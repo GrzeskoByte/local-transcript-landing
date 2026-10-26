@@ -30,6 +30,6 @@ curl -s 'https://api.github.com/repos/GrzeskoByte/local-transcript/releases?per_
 
 ![Download counter](images/landing-download-counter.png)
 
-This adds up `download_count` for every **installer** (`.dmg`, `.exe`, `.msi`, `.AppImage`, `.deb`, `.rpm`) in every release. Updater bundles and metadata (`latest.json`, `.sig`, `.tar.gz`) are left out, so update checks don't inflate the number. The counter is hidden when GitHub can't be reached.
+This adds up `download_count` for every **installer** (`.dmg`, `.exe`, `.msi`, `.AppImage`, `.deb`, `.rpm`) in every release, plus the macOS update bundles (`.app.tar.gz`). So it counts installs **and** in-app updates on every platform: Windows and the AppImage update by re-downloading the installer itself, and macOS downloads the `.app.tar.gz`. GitHub keeps one count per file, so installs and updates can't be told apart. Update checks (`latest.json`) and signatures (`.sig`) are left out. The counter is hidden when GitHub can't be reached.
 
 Neither source sets cookies or stores anything on the visitor's device.

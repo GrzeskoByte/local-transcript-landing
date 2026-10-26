@@ -137,13 +137,15 @@
       const m = /^v?(\d+\.\d+\.\d+)(?:-(windows|macos|ubuntu))?$/.exec(r.tag_name);
       if (!m) continue;
       const version = m[1];
-      const entry = byVersion.get(version) ?? { version, date: null, prerelease: false, notes: [], assets: [] };
+      const entry = byVersion.get(version) ?? { version, date: null, prerelease: false, notes: [], assets: [], updates: 0 };
       if (!entry.date || r.published_at > entry.date) entry.date = r.published_at;
       entry.prerelease = entry.prerelease || r.prerelease;
       entry.notes.push({ label: { windows: 'Windows', macos: 'macOS', ubuntu: 'Ubuntu' }[m[2]] ?? 'All platforms', url: r.html_url });
       for (const a of r.assets) {
         const c = classify(a.name);
         if (c) entry.assets.push({ name: a.name, size: a.size, url: a.browser_download_url, downloads: a.download_count || 0, sha: (a.digest || '').replace(/^sha256:/, ''), ...c });
+        // macOS in-app updates fetch a separate .app.tar.gz; count it, but don't list it.
+        else if (/\.app\.tar\.gz$/i.test(a.name)) entry.updates += a.download_count || 0;
       }
       byVersion.set(version, entry);
     }
@@ -239,11 +241,13 @@
   }
 
   // Public total from GitHub's per-file download_count, summed over every
-  // installer of every release (updater bundles and metadata are not counted).
+  // installer of every release plus in-app updates. Windows and the AppImage
+  // update by re-downloading the installer itself; macOS uses its .app.tar.gz.
+  // Update checks (latest.json) and signatures (.sig) are not counted.
   function renderCounter() {
     const box = $('#dlCounter');
     if (!state.rels.length) { box.hidden = true; return; }
-    const total = state.rels.reduce((n, r) => n + r.assets.reduce((m, a) => m + a.downloads, 0), 0);
+    const total = state.rels.reduce((n, r) => n + r.updates + r.assets.reduce((m, a) => m + a.downloads, 0), 0);
     $('#dlCount').textContent = total.toLocaleString();
     box.hidden = false;
   }
