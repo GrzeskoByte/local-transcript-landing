@@ -2,6 +2,8 @@
 
 The server edition runs Local Transcriber on your organization's own server, so a team can use it from the browser. It is the desktop app's interface with a backend for accounts and storage, all in one Docker container.
 
+> **Preview release.** The server edition is new (current image: `0.1.27-rc.1`). Try it on one machine first, back up the `lt-data` volume, and pin a version before your team relies on it.
+
 The full operator guide is [`deploy/README.md`](https://github.com/GrzeskoByte/local-transcript/blob/server/deploy/README.md) on the app's `server` branch. This page is the short version.
 
 ## What you get
