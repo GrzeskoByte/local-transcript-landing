@@ -29,9 +29,10 @@
       <a class="nl" href="#how">How it works</a>
       <a class="nl" href="#features">Features</a>
       <a class="nl" href="#privacy">Privacy</a>
+      <a class="nl" href="#server">Self-host</a>
       <a class="nl x" href="#releases-all">All versions</a>
-      <a class="nl" href="#faq">FAQ</a>
-      <a class="nl" href="https://github.com/GrzeskoByte/local-transcript-landing/wiki" target="_blank" rel="noopener">Docs</a>
+      <a class="nl y" href="#faq">FAQ</a>
+      <a class="nl y" href="https://github.com/GrzeskoByte/local-transcript-landing/wiki" target="_blank" rel="noopener">Docs</a>
       <a class="nl x" href="https://github.com/GrzeskoByte/local-transcript" target="_blank" rel="noopener">GitHub</a>
     </span>
     <span class="topbar-fill" aria-hidden="true"></span>
@@ -289,6 +290,105 @@ $ sudo voxtype setup gpu --enable
   </div>
 </section>
 
+<!-- ============ SELF-HOST (server edition) ============ -->
+<section id="server" class="sec" aria-labelledby="srvH">
+  <div class="wrap">
+    <h2 class="h2" id="srvH">Self-host it for your team.</h2>
+    <p class="intro">The server edition is the same app in the browser, served by one Docker container on a machine you control. Your organization gets accounts, single sign-on and shared transcription — and every recording stays on your server.</p>
+    <ul class="tags srv-tags"><li class="tag k">ghcr.io/grzeskobyte/local-transcribe</li><li class="tag">Linux amd64 · arm64</li><li class="tag">NVIDIA CUDA image</li><li class="tag">OpenID Connect SSO</li><li class="tag p">MIT · free</li></ul>
+
+    <div class="feat srv-feat">
+      <article class="win"><div class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="t">accounts</span></div><div class="bd"><h3>Invites and single sign-on</h3><p>Invite-only local accounts, plus SSO through any OpenID Connect provider — Keycloak, Authentik, Entra ID, Google. A group can grant admin rights.</p><div class="mini" aria-hidden="true">Sign in with SSO
+→ lt-admins = admin</div></div></article>
+      <article class="win"><div class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="t">private per user</span></div><div class="bd"><h3>Private per user</h3><p>Each person's meetings, recordings and settings live in their own folder. No one else can open them — admins included. Saved tokens are encrypted on disk.</p><div class="mini" aria-hidden="true">/data/users/&lt;uid&gt;/
+[x] encrypted tokens</div></div></article>
+      <article class="win"><div class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="t">shared engine</span></div><div class="bd"><h3>One engine, shared fairly</h3><p>One whisper.cpp engine and one set of models, downloaded once by an admin and shared between users. Speaker detection included; CUDA for NVIDIA GPUs.</p><div class="mini" aria-hidden="true">queue: round-robin per user
+backend: cuda</div></div></article>
+      <article class="win"><div class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="t">stays on your server</span></div><div class="bd"><h3>Nothing leaves the host</h3><p>Only sign-in with your SSO provider and the integrations a user turns on (GitLab, calendar, AI) reach the network.</p><div class="mini" aria-hidden="true">audio → your server
+uploads to us: 0</div></div></article>
+    </div>
+
+    <div class="srv-grid">
+      <section class="win sh-lg srv-step" aria-labelledby="srv1H">
+        <div class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="t">01 · try it on one machine</span><span class="r">docker run</span></div>
+        <div class="body"><h3 id="srv1H">Try it in one command</h3><p>Needs Docker. The app is reachable from this computer only, and the microphone works on <code>localhost</code> without HTTPS.</p></div>
+        <div class="codebox">
+<pre class="code"><span class="c"># create the first admin login</span>
+$ umask 077
+$ printf 'LT_ADMIN_EMAIL=you@example.com\nLT_ADMIN_PASSWORD=%s\n' \
+    "$(openssl rand -base64 18)" &gt; lt.env
+$ cat lt.env
+<span class="c"># start the server</span>
+$ docker run -d --name local-transcribe --restart unless-stopped \
+    -p 127.0.0.1:8080:8080 -v lt-data:/data --env-file lt.env \
+    ghcr.io/grzeskobyte/local-transcribe:latest
+<span class="p"># → open http://localhost:8080</span></pre>
+          <button class="btn btn-sm" data-copy="umask 077&#10;printf 'LT_ADMIN_EMAIL=you@example.com\nLT_ADMIN_PASSWORD=%s\n' &quot;$(openssl rand -base64 18)&quot; &gt; lt.env&#10;cat lt.env&#10;docker run -d --name local-transcribe --restart unless-stopped \&#10;  -p 127.0.0.1:8080:8080 -v lt-data:/data --env-file lt.env \&#10;  ghcr.io/grzeskobyte/local-transcribe:latest" aria-label="Copy the one-machine commands">Copy</button>
+        </div>
+        <div class="body srv-foot"><p>Stop it with <code>docker stop local-transcribe</code>. Remove everything, recordings included: <code>docker rm -f local-transcribe &amp;&amp; docker volume rm lt-data</code>.</p></div>
+      </section>
+
+      <section class="win sh-lg srv-step" aria-labelledby="srv2H">
+        <div class="bar hot"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="t">02 · run it for a team</span><span class="r">docker compose</span></div>
+        <div class="body"><h3 id="srv2H">Compose with automatic HTTPS</h3><p>Browsers allow the microphone only over HTTPS, so other computers need it. The included Caddy proxy gets a certificate for you.</p></div>
+        <div class="codebox">
+<pre class="code"><span class="c"># a. get the config and start the app</span>
+$ git clone -b server https://github.com/GrzeskoByte/local-transcript.git
+$ cd local-transcript
+$ umask 077
+$ cp deploy/.env.example .env
+<span class="c">#    set LT_ADMIN_EMAIL + LT_ADMIN_PASSWORD in .env</span>
+$ docker compose up -d</pre>
+          <button class="btn btn-sm" data-copy="git clone -b server https://github.com/GrzeskoByte/local-transcript.git&#10;cd local-transcript&#10;umask 077&#10;cp deploy/.env.example .env&#10;docker compose up -d" aria-label="Copy the Compose commands">Copy</button>
+        </div>
+        <div class="codebox">
+<pre class="code"><span class="c"># b. point DNS at the server, open ports 80 + 443,</span>
+<span class="c">#    then add to .env:</span>
+LT_DOMAIN=transcribe.example.com
+LT_PUBLIC_URL=https://transcribe.example.com
+$ docker compose --profile https up -d</pre>
+          <button class="btn btn-sm" data-copy="docker compose --profile https up -d" aria-label="Copy the HTTPS command">Copy</button>
+        </div>
+      </section>
+    </div>
+
+    <section class="win sh-md block srv-first" aria-labelledby="srv3H">
+      <div class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="t">03 · after the first start</span></div>
+      <div class="install">
+        <h3 id="srv3H">First sign-in</h3>
+        <ol>
+          <li><span>Open <code>http://localhost:8080</code> (or your HTTPS address) and sign in with the admin email and password from <code>lt.env</code> / <code>.env</code>.</span></li>
+          <li><span><b>Settings → Models</b>: download a model for everyone. <code>large-v3-turbo-q5_0</code> is a good start; <code>base</code> is fastest on a small CPU.</span></li>
+          <li><span><b>Settings → Users</b>: invite people. Each gets a one-time link to set a password — or turn on single sign-on (below).</span></li>
+          <li><span>Remove the two <code>LT_ADMIN_*</code> lines. The admin account is created only while the database has no users.</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="win sh-lg block srv-ops" aria-labelledby="srv4H">
+      <div class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="t" id="srv4H">operate.md · common tasks</span></div>
+      <div class="srv-tbl">
+        <table class="ptbl">
+          <thead><tr><th scope="col">To</th><th scope="col">Do</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Turn on single sign-on</th><td>Set <code>LT_OIDC_ISSUER</code>, <code>LT_OIDC_CLIENT_ID</code>, <code>LT_OIDC_CLIENT_SECRET</code> (and <code>LT_OIDC_ADMIN_GROUP</code>) in <code>.env</code>, or use <b>Settings → Sign-in</b>. Redirect URI: <code>&lt;LT_PUBLIC_URL&gt;/auth/oidc/callback</code>.</td></tr>
+            <tr><th scope="row">Use an NVIDIA GPU</th><td><code>docker compose -f docker-compose.yml -f deploy/docker-compose.gpu.yml up -d</code> — needs the NVIDIA Container Toolkit.</td></tr>
+            <tr><th scope="row">Limit storage per user</th><td><code>LT_USER_QUOTA_MB=2000</code> (0 = unlimited).</td></tr>
+            <tr><th scope="row">Reach an internal calendar</th><td><code>LT_CALENDAR_ALLOWED_HOSTS=calendar.company.local,10.0.0.0/8</code> — private addresses are blocked otherwise.</td></tr>
+            <tr><th scope="row">Pin a version</th><td><code>LT_IMAGE=ghcr.io/grzeskobyte/local-transcribe:&lt;version&gt;</code> (GPU: <code>&lt;version&gt;-cuda</code>).</td></tr>
+            <tr><th scope="row">Upgrade</th><td>Back up, then <code>docker compose pull app &amp;&amp; docker compose up -d app</code>.</td></tr>
+            <tr><th scope="row">Back up</th><td>Stop the app and archive the <code>lt-data</code> volume. It holds the accounts, recordings, transcripts, models and the encryption key.</td></tr>
+            <tr><th scope="row">Reset a password</th><td><code>docker compose exec app lt-server admin reset-password --email you@example.com</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="dl-note srv-note"><span><b>[!] Recording runs in the browser.</b> System-sound capture and the desktop-only tools (local folders, Thunderbird, OpenCode, Claude Code) are not available in the server edition — use the desktop app for those.</span></div>
+    <p class="more">The full guide — HTTPS behind your own proxy, settings for each SSO provider, a Keycloak demo, backup and restore — is in <a href="https://github.com/GrzeskoByte/local-transcript/blob/server/deploy/README.md" target="_blank" rel="noopener">deploy/README.md</a> and the <a href="https://github.com/GrzeskoByte/local-transcript-landing/wiki/Server-Edition" target="_blank" rel="noopener">Server Edition docs</a>.</p>
+  </div>
+</section>
+
 <!-- ============ FAQ ============ -->
 <section id="faq" class="sec dotted" aria-labelledby="faqH">
   <div class="wrap">
@@ -303,6 +403,7 @@ $ sudo voxtype setup gpu --enable
       <details><summary><span class="q" aria-hidden="true">?</span>Can it record Zoom, Meet or Teams calls?<span class="tg" aria-hidden="true"></span></summary><div class="a"><p>Yes — choose <b>Mic + Device</b> and share the call's tab or window when asked. Your voice and the call are saved as separate tracks. Device-audio availability depends on your OS, and headphones are recommended so the mic doesn't pick up the speakers.</p></div></details>
       <details><summary><span class="q" aria-hidden="true">?</span>What happens if transcription fails?<span class="tg" aria-hidden="true"></span></summary><div class="a"><p>Nothing bad. The recording is the source of truth and is never modified by transcription. You'll see "Your original recording is still safe." and a Retry button.</p></div></details>
       <details><summary><span class="q" aria-hidden="true">?</span>macOS says the app can't be opened — what now?<span class="tg" aria-hidden="true"></span></summary><div class="a"><p>Early builds may not be notarized yet. Right-click the app in Applications and choose <b>Open</b>, or run <code>xattr -dr com.apple.quarantine "/Applications/Local Transcribe.app"</code>.</p></div></details>
+      <details><summary><span class="q" aria-hidden="true">?</span>Can my company host it on its own server?<span class="tg" aria-hidden="true"></span></summary><div class="a"><p>Yes. The <a href="#server">server edition</a> runs the same app in the browser from one Docker container (<code>ghcr.io/grzeskobyte/local-transcribe</code>), with invite-only accounts, optional single sign-on through OpenID Connect, private storage for each user and one shared transcription engine — CPU or NVIDIA GPU. Recordings and transcripts stay on your server.</p></div></details>
       <details><summary><span class="q" aria-hidden="true">?</span>Is it really free?<span class="tg" aria-hidden="true"></span></summary><div class="a"><p>Yes. Local Transcriber is open source under the MIT license. No tiers, no trial, no account.</p></div></details>
     </div>
     <p class="more">More questions? The <a href="https://github.com/GrzeskoByte/local-transcript-landing/wiki" target="_blank" rel="noopener">documentation</a> has a full user manual — installation, recording, transcription, integrations and troubleshooting, with screenshots.</p>
