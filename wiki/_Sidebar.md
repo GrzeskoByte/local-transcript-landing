@@ -2,6 +2,7 @@
 
 **User manual**
 - [[Installation]]
+- [[Server Edition]]
 - [[Getting Started]]
 - [[Recording a Meeting]]
 - [[Transcription]]
