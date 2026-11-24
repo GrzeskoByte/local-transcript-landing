@@ -205,7 +205,7 @@ Issue</div></div></article>
   <div class="ht" aria-hidden="true"></div>
   <div class="wrap">
     <h2 class="h2" id="privH">Private by architecture, not by promise.</h2>
-    <p class="intro">There's no account and no server to trust. Here is exactly what can leave your machine — and when.</p>
+    <p class="intro">The desktop app has no account and no server to trust. Here is exactly what can leave your machine — and when.</p>
     <div class="win ptwin">
       <table class="ptbl">
         <thead><tr><th scope="col">Data</th><th scope="col">What happens</th><th scope="col">Leaves your machine?</th></tr></thead>
@@ -295,7 +295,7 @@ $ sudo voxtype setup gpu --enable
   <div class="wrap">
     <h2 class="h2" id="srvH">Self-host it for your team.</h2>
     <p class="intro">The server edition is the same app in the browser, served by one Docker container on a machine you control. Your organization gets accounts, single sign-on and shared transcription — and every recording stays on your server.</p>
-    <ul class="tags srv-tags"><li class="tag k">ghcr.io/grzeskobyte/local-transcribe</li><li class="tag">Linux amd64 · arm64</li><li class="tag">NVIDIA CUDA image</li><li class="tag">OpenID Connect SSO</li><li class="tag p">MIT · free</li></ul>
+    <ul class="tags srv-tags"><li class="tag h">Preview release</li><li class="tag k">ghcr.io/grzeskobyte/local-transcribe</li><li class="tag">Linux amd64 · arm64</li><li class="tag">NVIDIA CUDA image</li><li class="tag">OpenID Connect SSO</li><li class="tag p">MIT · free</li></ul>
 
     <div class="feat srv-feat">
       <article class="win"><div class="bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="t">accounts</span></div><div class="bd"><h3>Invites and single sign-on</h3><p>Invite-only local accounts, plus SSO through any OpenID Connect provider — Keycloak, Authentik, Entra ID, Google. A group can grant admin rights.</p><div class="mini" aria-hidden="true">Sign in with SSO
@@ -384,7 +384,7 @@ $ docker compose --profile https up -d</pre>
       </div>
     </section>
 
-    <div class="dl-note srv-note"><span><b>[!] Recording runs in the browser.</b> System-sound capture and the desktop-only tools (local folders, Thunderbird, OpenCode, Claude Code) are not available in the server edition — use the desktop app for those.</span></div>
+    <div class="dl-note srv-note"><span><b>[!] Preview release.</b> The server edition is new: try it on one machine first, back up the <code>lt-data</code> volume, and pin a version before your team relies on it. <b>Recording runs in the browser</b>, so system-sound capture and the desktop-only tools (local folders, Thunderbird, OpenCode, Claude Code) are not available in the server edition — use the desktop app for those.</span></div>
     <p class="more">The full guide — HTTPS behind your own proxy, settings for each SSO provider, a Keycloak demo, backup and restore — is in <a href="https://github.com/GrzeskoByte/local-transcript/blob/server/deploy/README.md" target="_blank" rel="noopener">deploy/README.md</a> and the <a href="https://github.com/GrzeskoByte/local-transcript-landing/wiki/Server-Edition" target="_blank" rel="noopener">Server Edition docs</a>.</p>
   </div>
 </section>
@@ -403,7 +403,7 @@ $ docker compose --profile https up -d</pre>
       <details><summary><span class="q" aria-hidden="true">?</span>Can it record Zoom, Meet or Teams calls?<span class="tg" aria-hidden="true"></span></summary><div class="a"><p>Yes — choose <b>Mic + Device</b> and share the call's tab or window when asked. Your voice and the call are saved as separate tracks. Device-audio availability depends on your OS, and headphones are recommended so the mic doesn't pick up the speakers.</p></div></details>
       <details><summary><span class="q" aria-hidden="true">?</span>What happens if transcription fails?<span class="tg" aria-hidden="true"></span></summary><div class="a"><p>Nothing bad. The recording is the source of truth and is never modified by transcription. You'll see "Your original recording is still safe." and a Retry button.</p></div></details>
       <details><summary><span class="q" aria-hidden="true">?</span>macOS says the app can't be opened — what now?<span class="tg" aria-hidden="true"></span></summary><div class="a"><p>Early builds may not be notarized yet. Right-click the app in Applications and choose <b>Open</b>, or run <code>xattr -dr com.apple.quarantine "/Applications/Local Transcribe.app"</code>.</p></div></details>
-      <details><summary><span class="q" aria-hidden="true">?</span>Can my company host it on its own server?<span class="tg" aria-hidden="true"></span></summary><div class="a"><p>Yes. The <a href="#server">server edition</a> runs the same app in the browser from one Docker container (<code>ghcr.io/grzeskobyte/local-transcribe</code>), with invite-only accounts, optional single sign-on through OpenID Connect, private storage for each user and one shared transcription engine — CPU or NVIDIA GPU. Recordings and transcripts stay on your server.</p></div></details>
+      <details><summary><span class="q" aria-hidden="true">?</span>Can my company host it on its own server?<span class="tg" aria-hidden="true"></span></summary><div class="a"><p>Yes. The <a href="#server">server edition</a> runs the same app in the browser from one Docker container (<code>ghcr.io/grzeskobyte/local-transcribe</code>), with invite-only accounts, optional single sign-on through OpenID Connect, private storage for each user and one shared transcription engine — CPU or NVIDIA GPU. Recordings and transcripts stay on your server. It is a preview release for now: test it before your team depends on it, and pin a version for production.</p></div></details>
       <details><summary><span class="q" aria-hidden="true">?</span>Is it really free?<span class="tg" aria-hidden="true"></span></summary><div class="a"><p>Yes. Local Transcriber is open source under the MIT license. No tiers, no trial, no account.</p></div></details>
     </div>
     <p class="more">More questions? The <a href="https://github.com/GrzeskoByte/local-transcript-landing/wiki" target="_blank" rel="noopener">documentation</a> has a full user manual — installation, recording, transcription, integrations and troubleshooting, with screenshots.</p>
